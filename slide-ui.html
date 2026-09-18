@@ -1,0 +1,1902 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontend yang Enak Dipakai: UI/UX, AI, dan Performa untuk Fullstack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1EF; --card:#FFFFFF; --ink:#121614; --ink-2:#4B5551; --ink-3:#7A8581; --rule:#D3DAD6; --tint:#E3E9E6;
+  --board:#0F3B31; --board-2:#16493D; --chalk:#F1F6F3; --chalk-2:#B9CFC6;
+  --marker:#FFD43B; --pen:#E0402A; --pen-soft:#FBE3DE; --ok:#1B8756; --ok-soft:#DDF1E6; --link:#0D6B56;
+  --shadow:0 1px 0 rgba(15,59,49,.05),0 22px 44px -22px rgba(15,59,49,.35);
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --sans:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --hand:"Caveat","Segoe Print","Bradley Hand",cursive;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --letterbox:#C9D3CE;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0E1513; --card:#151E1B; --ink:#EAF1ED; --ink-2:#A9B7B1; --ink-3:#7F8D87; --rule:#27332F; --tint:#1B2622;
+  --board:#0A2A23; --board-2:#113A30; --pen:#FF6F59; --pen-soft:#3A1C17; --ok:#4FCB8E; --ok-soft:#12321F; --link:#62D1B3;
+  --shadow:0 22px 44px -22px rgba(0,0,0,.7); --letterbox:#060A09;
+}}
+:root[data-theme="dark"]{
+  --paper:#0E1513; --card:#151E1B; --ink:#EAF1ED; --ink-2:#A9B7B1; --ink-3:#7F8D87; --rule:#27332F; --tint:#1B2622;
+  --board:#0A2A23; --board-2:#113A30; --pen:#FF6F59; --pen-soft:#3A1C17; --ok:#4FCB8E; --ok-soft:#12321F; --link:#62D1B3;
+  --shadow:0 22px 44px -22px rgba(0,0,0,.7); --letterbox:#060A09;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%;overflow:hidden;background:var(--letterbox)}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--link);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--marker);outline-offset:3px;border-radius:6px}
+
+/* ===== stage ===== */
+.stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--paper);overflow:hidden;container-type:inline-size;border-radius:6px}
+.slide{position:absolute;inset:0;padding:54px 72px 100px;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateX(40px);
+  transition:opacity .24s var(--ease-out),transform .24s var(--ease-out),visibility 0s linear .24s}
+.slide.is-past{transform:translateX(-40px)}
+.slide.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .24s var(--ease-out),transform .24s var(--ease-out),visibility 0s}
+@media (prefers-reduced-motion:reduce){.slide,.slide.is-active{transition:none}}
+
+.board{background:var(--board);color:var(--chalk)}
+.board .lede,.board .dim{color:var(--chalk-2)}
+
+/* bottom bar */
+.bar{position:absolute;left:72px;right:72px;bottom:26px;height:44px;display:flex;align-items:center;gap:18px;z-index:10}
+.bar .chap{font-size:14px;font-weight:600;color:var(--ink-2);white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.bar .track{flex:1;height:3px;background:var(--rule);border-radius:9px;overflow:hidden}
+.bar .fill{height:100%;background:var(--ink);width:0;transition:width .3s var(--ease-out)}
+.bar .num{font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink-2);min-width:52px;text-align:right}
+.bar button{height:40px;min-width:40px;padding:0 12px;border-radius:12px;border:1px solid var(--rule);background:var(--card);display:grid;place-items:center;transition:transform .14s var(--ease-out)}
+.bar button:active{transform:scale(.96)}
+.bar svg{width:18px;height:18px}
+.on-board .bar .chap,.on-board .bar .num{color:var(--chalk-2)}
+.on-board .bar .track{background:rgba(255,255,255,.18)}
+.on-board .bar .fill{background:var(--marker)}
+.on-board .bar button{background:transparent;border-color:rgba(255,255,255,.25);color:var(--chalk)}
+
+/* overview */
+.overview{position:absolute;inset:0;background:var(--paper);z-index:20;padding:40px 56px;overflow:auto;opacity:0;visibility:hidden;transition:opacity .18s var(--ease-out),visibility 0s linear .18s}
+.overview.open{opacity:1;visibility:visible;transition:opacity .18s var(--ease-out),visibility 0s}
+.overview h2{font-size:34px}
+.ov-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:26px}
+.ov-grid h4{font-family:var(--display);font-size:17px;margin-bottom:8px}
+.ov-grid button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:5px 8px;border-radius:8px;font-size:14px;color:var(--ink-2)}
+.ov-grid button:hover{background:var(--tint);color:var(--ink)}
+.ov-grid button[aria-current="true"]{background:var(--ink);color:var(--paper)}
+
+/* ===== type ===== */
+h1,h2,h3,h4{font-family:var(--display);font-weight:800;letter-spacing:-.025em}
+h1{font-size:76px;line-height:.98}
+h2{font-size:48px;line-height:1.02;max-width:20ch}
+h3{font-size:24px;line-height:1.15;letter-spacing:-.015em;font-weight:700}
+p,li{font-size:20px;line-height:1.5}
+.lede{font-size:22px;line-height:1.45;color:var(--ink-2);max-width:54ch;margin-top:16px}
+.s{font-size:17px;line-height:1.45}
+.xs{font-size:15px;line-height:1.4}
+.dim{color:var(--ink-2)}
+.wide{max-width:none}
+code{font-family:var(--mono);font-size:.84em;background:var(--tint);padding:.08em .35em;border-radius:5px}
+.board code{background:rgba(255,255,255,.1)}
+.hand{font-family:var(--hand);font-weight:700;color:var(--pen);font-size:27px;line-height:1.05}
+.hand.ok{color:var(--ok)}
+.chalk-hand{font-family:var(--hand);font-weight:700;color:var(--marker);font-size:34px}
+.mt0{margin-top:8px}.mt1{margin-top:14px}.mt2{margin-top:22px}.mt3{margin-top:34px}.mt4{margin-top:48px}
+.grow{flex:1;min-height:0}
+.center-v{display:flex;flex-direction:column;justify-content:center}
+
+/* ===== layout ===== */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.g-l{display:grid;grid-template-columns:5fr 7fr;gap:52px}
+.g-r{display:grid;grid-template-columns:7fr 5fr;gap:52px}
+.ai-c{align-items:center}
+.card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:24px 26px}
+.soft{background:var(--tint);border-radius:18px;padding:22px 24px}
+.lined{border-top:2px solid var(--ink);padding-top:14px}
+ul.dots{list-style:none}
+ul.dots li{position:relative;padding-left:20px}
+ul.dots li+li{margin-top:9px}
+ul.dots li::before{content:"";position:absolute;left:0;top:.66em;width:7px;height:7px;border-radius:50%;background:var(--ink)}
+ul.dots.pen li::before{background:var(--pen)}
+ul.dots.ok li::before{background:var(--ok)}
+.board ul.dots li::before{background:var(--marker)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:4px 11px;border-radius:999px}
+.chip.bad{background:var(--pen-soft);color:var(--pen)}
+.chip.good{background:var(--ok-soft);color:var(--ok)}
+.chip.neutral{background:var(--tint);color:var(--ink-2)}
+
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;font-size:17px;line-height:1.4}
+th{font-family:var(--display);font-weight:700;font-size:16px;color:var(--ink-2);border-bottom:2px solid var(--ink)}
+td{border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+td.dim{color:var(--ink-2)}
+.t-sm th,.t-sm td{font-size:15px;padding:7px 10px}
+.spec.inset{box-shadow:none;background:transparent;padding:0}
+.h-md{font-size:40px}
+
+pre{font-family:var(--mono);font-size:12.8px;line-height:1.48;background:#0B1F1A;color:#D8E8E1;border-radius:16px;padding:18px 20px;overflow:auto;white-space:pre-wrap;max-height:540px}
+pre .c{color:#7FA597}
+pre .k{color:#FFD43B}
+pre .s{color:#9FE3C3;font-size:inherit}
+.code{position:relative}
+.copy{position:absolute;top:10px;right:10px;font-size:13px;font-weight:600;padding:6px 11px;border-radius:9px;border:1px solid #2C4A41;background:#12302A;color:#D8E8E1;transition:transform .14s var(--ease-out)}
+.copy:active{transform:scale(.96)}
+
+/* toggles */
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:13px;background:var(--tint);flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:10px;font-size:15px;font-weight:600;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(15,59,49,.18)}
+.seg button:active{transform:scale(.97)}
+
+/* ===== cover ===== */
+.cover-title{font-size:92px;line-height:.94;letter-spacing:-.04em;max-width:13ch}
+.cover-scribble{position:absolute;right:70px;top:70px;width:360px}
+
+/* ===== cups ===== */
+.cup-wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.cup{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:22px;position:relative}
+.cup svg{width:100%;height:250px;display:block}
+.cup .stroke{stroke:var(--ink)}
+.cup .fillc{fill:var(--card)}
+.cup .tea{fill:#C98A4B}
+
+/* ===== chapter divider ===== */
+.chap-no{font-family:var(--hand);color:var(--marker);font-size:44px;transform:rotate(-3deg);display:inline-block;margin-bottom:14px;align-self:flex-start}
+.chap-title{font-size:88px;line-height:.95;letter-spacing:-.04em;max-width:14ch;margin-top:6px}
+.chap-list{margin-top:36px;display:grid;grid-template-columns:repeat(2,minmax(0,380px));gap:10px 40px}
+.chap-list li{font-size:18px;color:var(--chalk-2)}
+
+/* route map */
+.route{position:relative;margin-top:40px;display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+.route::before{content:"";position:absolute;left:24px;right:24px;top:23px;height:3px;background:repeating-linear-gradient(90deg,var(--ink) 0 14px,transparent 14px 22px)}
+.stop{position:relative;padding-right:22px}
+.stop .pin{width:48px;height:48px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;position:relative}
+.stop:nth-child(3) .pin{background:var(--marker);color:#121614}
+.stop h3{margin-top:18px;font-size:22px}
+.stop p{font-size:16px;color:var(--ink-2);margin-top:6px}
+
+/* ===== specimens (demo UI with their own product palette) ===== */
+.spec{background:#fff;color:#1A1D24;border-radius:18px;padding:22px;font-family:var(--sans);box-shadow:var(--shadow)}
+:root[data-theme="dark"] .spec{background:#fff;color:#1A1D24}
+.spec .muted{color:#6B7280}
+.spec .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.b{border-radius:11px;padding:11px 16px;font-weight:700;font-size:16px;border:1px solid transparent;transition:transform .16s var(--ease-out),background .15s,box-shadow .15s}
+.b:active{transform:scale(.97)}
+.b-primary{background:#1D5BFF;color:#fff}
+.b-primary:hover{background:#1649D6}
+.b-secondary{background:#fff;color:#1A1D24;border-color:#D3D8E2}
+.b-tertiary{background:transparent;color:#1D5BFF;padding-left:6px;padding-right:6px}
+.b-danger{background:#fff;color:#C23321;border-color:#F0C2BA}
+.b-flat{background:#EEF1F7;color:#1A1D24;border-color:#DDE2EC;font-weight:500}
+.b[disabled]{opacity:.45;cursor:not-allowed}
+.b-loading{display:inline-flex;align-items:center;gap:8px}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
+
+.anno{position:absolute;pointer-events:none}
+.anno svg{overflow:visible}
+.anno path,.anno ellipse{fill:none;stroke:var(--pen);stroke-width:2.6;stroke-linecap:round}
+.anno.ok path,.anno.ok ellipse{stroke:var(--ok)}
+
+/* header wireframe */
+.wire{background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.wire .top{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.wire .blk{height:12px;border-radius:5px;background:var(--rule)}
+.wire .logo{width:64px;height:22px;border-radius:6px;background:var(--ink)}
+.wire .search{flex:1;height:34px;border-radius:10px;border:1.5px solid var(--rule);display:flex;align-items:center;padding-left:12px}
+.wire .ic{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink-3)}
+
+/* state box */
+.state-box{height:320px;overflow:hidden}
+.skel{height:16px;border-radius:6px;background:linear-gradient(90deg,#EEF1F5,#E0E5EC,#EEF1F5);background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+.qrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #EEF0F4;font-size:16px}
+.qrow:last-child{border-bottom:0}
+.tagx{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;background:#F1F3F7;color:#5B6372}
+.toastx{display:flex;gap:10px;align-items:center;background:#E3F5EC;color:#11734A;border-radius:12px;padding:11px 14px;font-weight:600;font-size:15px}
+
+/* form specimen */
+.fl{display:block;font-size:14px;font-weight:600;margin-top:12px;color:#1A1D24}
+.fi{width:100%;margin-top:6px;border:1.5px solid #D3D8E2;border-radius:10px;padding:10px 12px;font-size:15px;background:#fff;color:#1A1D24}
+.fi.err{border-color:#D23A26;background:#FFF7F5}
+.fe{font-size:13px;color:#C23321;margin-top:5px}
+.fi::placeholder{color:#9AA1AE}
+
+/* fake hero mocks */
+.mock{border-radius:18px;height:420px;overflow:hidden;position:relative}
+.mock-ai{background:linear-gradient(135deg,#150C30 0%,#35197A 55%,#7440E6 100%);color:#fff;padding:32px 34px;text-align:center}
+.mock-ai .eyb{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:#C9B7FF}
+.mock-ai .h{font-family:"Inter",system-ui,sans-serif;font-size:33px;font-weight:800;line-height:1.1;margin-top:12px;letter-spacing:-.02em}
+.mock-ai .h em{font-style:normal;background:linear-gradient(90deg,#FF7AE0,#7AE1FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mock-ai .sub{font-size:14.5px;color:#D9CCFF;margin:10px auto 0;max-width:40ch;line-height:1.5}
+.mock-ai .cta{display:inline-block;margin-top:16px;background:#fff;color:#35197A;border-radius:999px;padding:10px 20px;font-weight:700;font-size:14.5px;box-shadow:0 0 30px rgba(180,140,255,.75)}
+.mock-ai .meta{font-size:12.5px;color:#C9B7FF;margin-top:12px}
+.mock-ai .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.mock-ai .cardx{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:13px;text-align:left;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.mock-ai .cardx b{font-family:var(--mono);font-size:11.5px;color:#C9B7FF}
+.mock-ai .cardx div{font-size:13.5px;font-weight:700;margin-top:6px}
+.mock-real{background:#FBFBFA;color:#17201C;padding:30px 32px;display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:center;border:1px solid #E3E7E4}
+.mock-real .h{font-family:var(--display);font-size:32px;font-weight:800;line-height:1.02;letter-spacing:-.03em}
+.mock-real .sub{font-size:15px;color:#5A6560;margin-top:12px;line-height:1.5}
+.mock-real .b{padding:11px 14px;font-size:15px}
+.mock-real .b-go{background:#17201C;color:#fff}
+.mock-real .b-secondary{background:transparent;border-color:transparent;color:#5A6560;padding-left:4px;padding-right:4px}
+.resume{background:#EEF3F0;border-radius:14px;padding:16px}
+.pbar{height:7px;border-radius:9px;background:#D7E1DC;overflow:hidden;margin-top:10px}
+.pbar i{display:block;height:100%;width:58%;background:#2E9A68}
+
+/* swatch */
+.sw-row{display:flex;gap:10px;margin-top:12px}
+.sw{height:96px;flex:1;border-radius:14px;display:flex;align-items:flex-end;padding:8px 10px;font-family:var(--mono);font-size:12px}
+
+/* knobs */
+.knob{margin-top:18px}
+.knob label{display:flex;justify-content:space-between;font-weight:700;font-size:16px}
+.knob input[type=range]{width:100%;margin-top:8px;accent-color:var(--ink)}
+.knob .xs{margin-top:4px}
+.kprev{background:#fff;color:#1A1D24;border-radius:18px;box-shadow:var(--shadow);height:370px;overflow:hidden;padding:26px;display:flex;flex-direction:column}
+.kprev .kh{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.02}
+.kprev .kitems{display:grid;margin-top:auto}
+.kprev .kit{background:#F1F3EF;border-radius:10px;padding:10px;font-size:13px}
+.kprev .kbox{border-radius:12px;background:#1B6B52}
+
+/* motion demo */
+.lane{height:54px;border-radius:14px;background:var(--tint);position:relative;margin-top:8px}
+.puck{position:absolute;left:7px;top:7px;width:40px;height:40px;border-radius:11px;background:var(--ink)}
+.puck.go{transform:translateX(470px)}
+.pop-demo{position:relative;height:150px}
+.pop{position:absolute;top:52px;width:200px;background:#fff;color:#1A1D24;border-radius:12px;box-shadow:0 14px 34px -10px rgba(0,0,0,.35);padding:10px 12px;font-size:14px;opacity:0;transform:scale(.95);pointer-events:none;transition:opacity .18s var(--ease-out),transform .18s var(--ease-out)}
+.pop.show{opacity:1;transform:scale(1)}
+
+/* debounce + optimistic */
+.counter-big{font-family:var(--display);font-size:56px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.fav{display:inline-flex;align-items:center;gap:9px}
+.fav svg{width:18px;height:18px}
+.fav[aria-pressed="true"] svg path{fill:#E0402A;stroke:#E0402A}
+.spin.dark{border-color:rgba(0,0,0,.15);border-top-color:#1A1D24}
+
+/* checklist */
+.chk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:20px}
+.chk-grid h3{font-size:19px;margin-bottom:8px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:15.5px;line-height:1.38;cursor:pointer}
+.chk input{appearance:none;flex:none;width:21px;height:21px;border-radius:6px;border:2px solid var(--ink-3);margin-top:1px;display:grid;place-items:center;cursor:pointer;transition:background .12s,border-color .12s}
+.chk input:checked{background:var(--ok);border-color:var(--ok)}
+.chk input:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.chk input:checked+span{color:var(--ink-3);text-decoration:line-through}
+
+/* render diagram */
+.lane-row{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.lane-row:last-child{border-bottom:0}
+.lane-row b{font-family:var(--display);font-size:22px}
+.segs{display:flex;height:30px;border-radius:8px;overflow:hidden;font-size:12.5px;font-weight:600}
+.segs span{display:flex;align-items:center;padding:0 8px;white-space:nowrap;overflow:hidden}
+.sv{background:#0F3B31;color:#EAF4EF}
+.cd{background:#6FB59A;color:#0B241D}
+.br{background:var(--marker);color:#121614}
+.wt{background:repeating-linear-gradient(45deg,var(--rule) 0 6px,transparent 6px 12px);color:var(--ink-2)}
+
+/* big statement */
+.statement{font-family:var(--display);font-size:60px;line-height:1.02;letter-spacing:-.035em;font-weight:800;max-width:22ch}
+
+/* ===== portrait mobile ===== */
+html.portrait .stage{left:0;top:0;width:100vw;height:100dvh;transform:none!important;border-radius:0}
+html.portrait .slide{padding:30px 22px 100px;overflow-y:auto}
+html.portrait .bar{left:18px;right:18px;bottom:20px;gap:10px}
+@container (max-width:760px){
+  h1,.cover-title{font-size:46px} h2{font-size:32px} .chap-title{font-size:48px} .statement{font-size:34px}
+  p,li{font-size:16.5px} .lede{font-size:18px} th,td{font-size:14px}
+  .g2,.g3,.g4,.g-l,.g-r,.cup-wrap,.chk-grid,.mock-real,.route,.chap-list,.ov-grid{grid-template-columns:1fr;gap:20px}
+  .route::before{display:none}
+  .mock{height:auto}.mock-ai .cards{grid-template-columns:1fr}
+  .cover-scribble,.bar .chap{display:none}
+  .puck.go{transform:translateX(calc(100cqw - 100px))}
+  .tscroll{overflow-x:auto}
+  .anno{display:none}
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- ============================ PEMBUKA ============================ -->
+<section class="slide" data-chap="Pembuka" data-title="Sampul">
+  <svg class="cover-scribble" viewBox="0 0 360 300" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ink)">
+      <rect x="40" y="70" width="200" height="190" rx="22"/>
+      <path d="M92 70v-18M140 70v-26M188 70v-14" opacity=".35"/>
+      <path d="M240 118c52 0 52 94 0 94"/>
+    </g>
+    <path d="M300 38c-40 6-70 20-84 44" fill="none" stroke="var(--pen)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M214 70l2-14 12 8" fill="none" stroke="var(--pen)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="150" y="28" font-family="Caveat, cursive" font-weight="700" font-size="28" fill="var(--pen)">pegangannya di luar</text>
+  </svg>
+  <div class="grow center-v">
+    <p class="s dim">Materi UI/UX dan frontend untuk fullstack developer</p>
+    <h1 class="cover-title mt1">Frontend yang enak dipakai, bukan cuma enak dilihat</h1>
+    <p class="lede">Pondasi UX, cara kerja AI saat mendesain, cara bikin hasil yang nggak kelihatan bikinan AI, dan frontend yang ringan untuk user maupun server.</p>
+    <p class="xs dim mt3">Geser dengan tombol panah, swipe, atau tekan G untuk melihat daftar slide.</p>
+  </div>
+</section>
+
+<section class="slide" data-chap="Pembuka" data-title="Gelas dengan pegangan ke dalam">
+  <div class="g-l grow ai-c">
+    <div>
+      <h2>Gelas ini unik. Tapi coba minum pakai gelas yang kanan.</h2>
+      <p class="lede">Pegangannya ada, bentuknya rapi, warnanya bagus. Masalahnya pegangan menghadap ke dalam: tangan nggak bisa masuk, dan kalaupun bisa, jarinya kena teh panas.</p>
+      <p class="mt2">Banyak frontend seperti gelas kanan. Kelihatan kreatif di screenshot, tapi gagal saat benar-benar dipakai.</p>
+    </div>
+    <div class="cup-wrap">
+      <div class="cup">
+        <span class="chip good">Sesuai kebutuhan</span>
+        <svg viewBox="0 0 260 250" aria-label="Gelas dengan pegangan di luar">
+          <path class="fillc stroke" d="M46 70h140v130a28 28 0 0 1-28 28H74a28 28 0 0 1-28-28z" stroke-width="4"/>
+          <path class="stroke" d="M186 104c46 0 46 76 0 76" fill="none" stroke-width="12" stroke-linecap="round"/>
+          <path class="tea" d="M49 84h134v116a25 25 0 0 1-25 25H74a25 25 0 0 1-25-25z" opacity=".35"/><path class="tea" d="M49 84h134v10H49z"/>
+        </svg>
+        <p class="hand ok" style="position:absolute;right:18px;bottom:16px">tangan langsung tahu</p>
+      </div>
+      <div class="cup">
+        <span class="chip bad">Unik, tapi menyusahkan</span>
+        <svg viewBox="0 0 260 250" aria-label="Gelas dengan pegangan di dalam">
+          <path class="fillc stroke" d="M46 70h140v130a28 28 0 0 1-28 28H74a28 28 0 0 1-28-28z" stroke-width="4"/>
+          <path class="tea" d="M49 84h134v116a25 25 0 0 1-25 25H74a25 25 0 0 1-25-25z" opacity=".35"/><path class="tea" d="M49 84h134v10H49z"/>
+          <path class="stroke" d="M180 108c-44 0-44 72 0 72" fill="none" stroke-width="12" stroke-linecap="round"/>
+        </svg>
+        <p class="hand" style="position:absolute;right:18px;bottom:16px">jari kena teh panas</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Pembuka" data-title="Peta perjalanan materi">
+  <h2 class="wide">Lima bab, saling nyambung</h2>
+  <p class="lede">Setiap bab menjawab masalah yang muncul di bab sebelumnya. Kita mulai dari gelas yang bisa dipakai, lalu bikin gelas itu cepat, ringan, dan punya karakter.</p>
+  <div class="route">
+    <div class="stop"><div class="pin">1</div><h3>Pondasi UX</h3><p>Apa yang bikin layar bisa dipakai tanpa mikir.</p></div>
+    <div class="stop"><div class="pin">2</div><h3>AI dan desain</h3><p>Kenapa hasil AI seragam dan gimana mengenalinya.</p></div>
+    <div class="stop"><div class="pin">3</div><h3>Desain yang nggak AI</h3><p>Brief, referensi, aturan, tool, prompt, polishing.</p></div>
+    <div class="stop"><div class="pin">4</div><h3>Ringan dan cepat</h3><p>Enak untuk user, hemat untuk server.</p></div>
+    <div class="stop"><div class="pin">5</div><h3>Audit dan praktik</h3><p>Checklist, bedah platform, tugas.</p></div>
+  </div>
+  <p class="hand mt4" style="transform:rotate(-1.5deg);display:inline-block">bab 3 dan 4 paling panjang, di situ inti vibe coding-nya</p>
+</section>
+
+<!-- ============================ BAB 1 ============================ -->
+<section class="slide board" data-chap="Bab 1: Pondasi UX" data-title="Bab 1: Pondasi UX">
+  <div class="grow center-v">
+    <span class="chap-no">bab 1</span>
+    <h1 class="chap-title">Pondasi UX yang nggak bisa ditawar</h1>
+    <p class="lede">AI bisa bikin tampilan dalam hitungan detik. Tapi AI nggak tahu user-mu, datamu, dan situasi pakainya. Bagian ini yang harus kamu kasih.</p>
+    <ul class="chap-list">
+      <li>UI, UX, dan gelas tadi</li><li>Hierarki visual dan hierarki tombol</li>
+      <li>Kebiasaan user dan pola yang sudah dikenal</li><li>State, feedback, form, dan copy</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="UI dan UX dari kerjanya">
+  <h2 class="wide">UI itu bentuk gelasnya. UX itu rasanya saat minum.</h2>
+  <div class="g2 mt3">
+    <div class="lined">
+      <h3>UI: yang dilihat dan disentuh</h3>
+      <ul class="dots mt1">
+        <li>Warna, tipografi, jarak, ikon, ilustrasi</li>
+        <li>Komponen: tombol, input, kartu, tab, modal</li>
+        <li>Keadaan visual: hover, ditekan, fokus, nonaktif, memuat</li>
+      </ul>
+    </div>
+    <div class="lined">
+      <h3>UX: apakah tujuan user tercapai</h3>
+      <ul class="dots mt1">
+        <li>Berapa langkah sampai tugas selesai</li>
+        <li>Apa yang terjadi saat data kosong, lambat, atau gagal</li>
+        <li>Seberapa cepat terasa di HP dan sinyal biasa</li>
+      </ul>
+    </div>
+  </div>
+  <div class="soft mt3">
+    <p class="s"><b>Contoh nyata:</b> form checkout yang cantik tapi mengosongkan semua isian begitu satu field salah. UI-nya bagus, UX-nya gelas pegangan ke dalam. Buat fullstack, UX juga termasuk urusan API: respons error yang jelas, validasi yang konsisten, dan data yang dikirim secukupnya.</p>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Hierarki visual">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px">
+    <div>
+      <h2 class="wide">Hierarki: mata user baca apa duluan?</h2>
+      <p class="lede" style="font-size:20px">Isi kartu sama persis. Bedanya cuma ukuran, warna, dan berat. Tugas utamanya: bayar sebelum jatuh tempo.</p>
+    </div>
+  </div>
+  <div class="g2 mt2 grow" style="gap:60px">
+    <div style="position:relative">
+      <span class="chip bad">Semua sama berat</span>
+      <div class="spec mt1" style="max-width:420px">
+        <div class="s">Tagihan internet September</div>
+        <div class="s mt0">Rp 389.500</div>
+        <div class="s mt0">Jatuh tempo 3 hari lagi, 20 Sep</div>
+        <div class="row xs mt2"><span>No. pelanggan</span><span>1182 0457 31</span></div>
+        <div class="row xs mt0"><span>Paket</span><span>50 Mbps</span></div>
+        <div style="display:flex;gap:10px;margin-top:18px"><button class="b b-flat" style="flex:1">Bayar sekarang</button><button class="b b-flat">Rincian</button></div>
+      </div>
+      <p class="hand" style="position:absolute;left:210px;top:-6px;transform:rotate(-3deg)">yang penting yang mana?</p>
+      <p class="hand" style="margin-top:8px;font-size:24px;transform:rotate(-1deg)">tombol utama polos, sama dengan "Rincian"</p>
+    </div>
+    <div style="position:relative">
+      <span class="chip good">Satu fokus</span>
+      <div class="spec mt1" style="max-width:420px">
+        <div class="xs muted">Tagihan internet September</div>
+        <div style="font-family:var(--display);font-size:44px;font-weight:800;letter-spacing:-.03em;margin-top:4px">Rp 389.500</div>
+        <div class="xs" style="color:#C23321;font-weight:700;margin-top:4px">Jatuh tempo 3 hari lagi, 20 Sep</div>
+        <div class="row xs muted mt2"><span>No. pelanggan</span><span>1182 0457 31</span></div>
+        <div class="row xs muted mt0"><span>Paket</span><span>50 Mbps</span></div>
+        <div style="display:flex;gap:10px;margin-top:18px"><button class="b b-primary" style="flex:1">Bayar sekarang</button><button class="b b-tertiary">Rincian</button></div>
+      </div>
+      <p class="hand ok" style="margin-top:8px;font-size:24px;transform:rotate(-1deg)">nominal dan tanggal langsung terbaca, aksi utama berwarna</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Hierarki tombol">
+  <div class="g-l grow">
+    <div>
+      <h2 class="h-md">Tombol utama memang harus beda</h2>
+      <p class="lede">"Bayar sekarang" itu aksi utama, jadi diberi warna isi (solid). Aksi pendamping cukup garis tepi atau teks. Kalau semua tombol berwarna, nggak ada yang terlihat penting.</p>
+      <ul class="dots mt2 s">
+        <li><b>Satu tombol primary</b> per layar atau per bagian</li>
+        <li><b>Destructive</b> (hapus, batalkan langganan) jangan dibuat paling mencolok, dan minta konfirmasi</li>
+        <li>Label tombol = kata kerja yang menjelaskan hasilnya</li>
+        <li>Setiap tombol punya keadaan lengkap, bukan cuma tampilan diam</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h3 style="font-size:19px">Tingkatan</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;align-items:center" class="spec inset">
+          <button class="b b-primary">Bayar sekarang</button>
+          <button class="b b-secondary">Unduh invoice</button>
+          <button class="b b-tertiary">Rincian</button>
+          <button class="b b-danger">Berhenti langganan</button>
+        </div>
+        <table class="t-sm mt0">
+          <tr><td style="width:28%"><b>Primary</b></td><td class="dim">Warna isi, kontras tinggi. Tujuan utama layar.</td></tr>
+          <tr><td><b>Secondary</b></td><td class="dim">Garis tepi. Alternatif yang masih penting.</td></tr>
+          <tr><td><b>Tertiary</b></td><td class="dim">Teks saja. Navigasi ringan, lihat detail.</td></tr>
+          <tr><td><b>Destructive</b></td><td class="dim">Merah secukupnya, butuh konfirmasi.</td></tr>
+        </table>
+      </div>
+      <div class="card mt1">
+        <h3 style="font-size:19px">Keadaan yang wajib ada</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center" class="spec inset">
+          <button class="b b-primary">Normal</button>
+          <button class="b b-primary" style="background:#1649D6">Hover</button>
+          <button class="b b-primary" style="transform:scale(.97);background:#123DB5">Ditekan</button>
+          <button class="b b-primary" style="outline:3px solid #FFD43B;outline-offset:2px">Fokus</button>
+          <button class="b b-primary b-loading"><span class="spin"></span>Memproses</button>
+          <button class="b b-primary" disabled>Nonaktif</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Kebiasaan user">
+  <div class="g-r grow">
+    <div>
+      <h2>User datang membawa kebiasaan dari website lain</h2>
+      <p class="lede">Hampir seluruh waktu online user dihabiskan di aplikasi dan website orang lain. Mereka berharap punyamu bekerja dengan cara yang sama.</p>
+      <p class="mt2">Itulah kenapa banyak website polanya mirip. Bukan karena malas, tapi supaya orang awam nggak perlu belajar ulang. Alur yang beda sendiri sama dengan gelas pegangan ke dalam.</p>
+      <div class="wire mt3">
+        <div class="top">
+          <div class="logo"></div>
+          <div class="blk" style="width:50px"></div><div class="blk" style="width:50px"></div>
+          <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="color:var(--ink-3)"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+          <div class="ic"></div><div class="ic"></div>
+        </div>
+        <div style="padding:14px 18px;display:flex;gap:18px" class="xs dim">
+          <span>logo kiri atas kembali ke beranda</span><span>cari di tengah</span><span>akun dan keranjang kanan atas</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Konvensi yang sudah tertanam</h3>
+      <ul class="dots mt1 s">
+        <li>Teks tautan terlihat bisa diklik</li>
+        <li>Ikon kaca pembesar berarti cari, silang berarti tutup</li>
+        <li>Label input ada di atas input</li>
+        <li>Klik di luar modal atau tekan Esc untuk menutup</li>
+        <li>Tombol kembali browser tetap bekerja, termasuk di filter dan tab</li>
+        <li>Scroll ke bawah untuk konten berikutnya</li>
+        <li>Menu di HP dibuka dari ikon garis tiga atau tab bawah</li>
+        <li>Keranjang dan checkout mengikuti urutan: isi, alamat, bayar, selesai</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Kreatif di rasa, konvensional di alur">
+  <h2 class="wide">Kreatif di rasa, konvensional di alur</h2>
+  <p class="lede">Ini aturan paling penting sebelum masuk ke bagian "desain yang nggak AI". Keunikan ditaruh di tempat yang nggak bikin user tersesat.</p>
+  <div class="g2 mt3">
+    <div>
+      <span class="chip good">Silakan dieksplor</span>
+      <table class="mt1">
+        <tr><td>Palet warna, tipografi, dan ilustrasi khas produk</td></tr>
+        <tr><td>Komposisi hero dan cara menampilkan produk</td></tr>
+        <tr><td>Satu momen animasi yang berkesan</td></tr>
+        <tr><td>Nada bahasa, foto, gaya ikon</td></tr>
+        <tr><td>Microinteraction yang menjawab aksi</td></tr>
+      </table>
+    </div>
+    <div>
+      <span class="chip bad">Jangan diakal-akali</span>
+      <table class="mt1">
+        <tr><td>Posisi dan cara membuka navigasi utama</td></tr>
+        <tr><td>Alur daftar, login, checkout, pembayaran</td></tr>
+        <tr><td>Arah scroll, tombol kembali, gesture standar</td></tr>
+        <tr><td>Makna ikon umum (hapus, cari, tutup, menu)</td></tr>
+        <tr><td>Kursor custom, scroll dibajak, link tanpa tanda</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="State yang sering dilupa">
+  <div class="g-l grow">
+    <div>
+      <h2>Lima keadaan yang jarang dibuat AI</h2>
+      <p class="lede">Kalau nggak diminta, AI hanya membuat tampilan saat data lengkap. Padahal setiap endpoint yang kamu tulis punya kemungkinan kosong, lambat, gagal, dan berhasil.</p>
+      <div class="seg mt2" role="group" aria-label="Pilih keadaan">
+        <button aria-pressed="true" data-state="full">Terisi</button>
+        <button aria-pressed="false" data-state="empty">Kosong</button>
+        <button aria-pressed="false" data-state="loading">Memuat</button>
+        <button aria-pressed="false" data-state="error">Gagal</button>
+        <button aria-pressed="false" data-state="success">Berhasil</button>
+      </div>
+      <p class="s dim mt1" id="state-note"></p>
+    </div>
+    <div class="spec state-box" id="state-box" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Setiap aksi harus dijawab">
+  <h2 class="wide">Setiap aksi harus dijawab, dan cepat</h2>
+  <p class="lede">Batas waktu yang dirasakan manusia ini sudah diteliti puluhan tahun dan masih jadi patokan aplikasi hari ini.</p>
+  <div class="g3 mt3">
+    <div class="lined"><div class="counter-big">0,1 dtk</div><p class="s mt1">Terasa instan. Tombol harus langsung berubah saat ditekan, walau request-nya belum selesai.</p></div>
+    <div class="lined"><div class="counter-big">1 dtk</div><p class="s mt1">Alur pikir masih nyambung. Lewat dari ini, tampilkan skeleton atau indikator.</p></div>
+    <div class="lined"><div class="counter-big">10 dtk</div><p class="s mt1">Perhatian hilang. Tampilkan progres, perkiraan waktu, atau jadikan proses latar.</p></div>
+  </div>
+  <div class="soft mt3">
+    <p class="s"><b>Terjemahan ke kode:</b> tombol langsung masuk keadaan memuat dan dikunci supaya nggak submit dobel. Aksi ringan (like, centang, simpan draf) pakai optimistic update. Semua request punya timeout dan pesan gagal. Detail tekniknya ada di bab 4.</p>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Form yang ramah">
+  <div class="g-l grow">
+    <div>
+      <h2 class="h-md">Form: tempat user paling sering menyerah</h2>
+      <ul class="dots mt2 xs" style="font-size:16px">
+        <li>Label selalu terlihat di atas input. Placeholder hilang saat mengetik, jadi bukan pengganti label.</li>
+        <li>Validasi saat field ditinggalkan, bukan saat setiap huruf diketik.</li>
+        <li>Pesan error menempel di field yang salah dan menjelaskan cara memperbaiki.</li>
+        <li>Jangan pernah menghapus isian saat ada error.</li>
+        <li>Pakai <code>type="email"</code>, <code>inputmode="numeric"</code>, <code>autocomplete</code> supaya keyboard HP dan isi otomatis bekerja.</li>
+        <li>Validasi di client untuk kenyamanan, validasi di server tetap wajib.</li>
+      </ul>
+    </div>
+    <div class="g2" style="gap:22px;align-items:start">
+      <div style="position:relative">
+        <span class="chip bad">Bikin menyerah</span>
+        <div class="spec mt1">
+          <input class="fi" placeholder="Nama lengkap" value="Rina Kartika">
+          <input class="fi" placeholder="Nomor HP" value="0812-88">
+          <input class="fi err" placeholder="Email">
+          <div class="fe">Input tidak valid!</div>
+          <button class="b b-primary mt1" style="width:100%">Submit</button>
+        </div>
+        <p class="hand mt0">yang ini label-nya apa ya?</p>
+      </div>
+      <div>
+        <span class="chip good">Bikin selesai</span>
+        <div class="spec mt1">
+          <label class="fl" style="margin-top:0">Nama lengkap<input class="fi" value="Rina Kartika" autocomplete="name"></label>
+          <label class="fl">Nomor WhatsApp<input class="fi err" value="0812-88" inputmode="tel" autocomplete="tel"></label>
+          <div class="fe">Nomor terlalu pendek. Contoh: 0812 3456 7890</div>
+          <label class="fl">Email<input class="fi" type="email" value="rina.k@gmail.com" autocomplete="email"></label>
+          <button class="b b-primary mt2" style="width:100%">Daftar kelas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Copy dari sudut pandang user">
+  <h2 class="wide">Kata-kata juga bagian dari desain</h2>
+  <p class="lede">Tulis dari sudut pandang orang yang pakai. Kata kerja aktif, istilah yang mereka pahami, dan nama aksi yang konsisten dari tombol sampai notifikasi.</p>
+  <div class="tscroll mt2">
+  <table>
+    <thead><tr><th style="width:38%">Istilah sistem</th><th>Bahasa user</th></tr></thead>
+    <tr><td class="dim">Submit</td><td>Simpan perubahan</td></tr>
+    <tr><td class="dim">Error 500: Internal Server Error</td><td>Gagal menyimpan jawaban. Jawaban sebelumnya aman, coba lagi sebentar lagi.</td></tr>
+    <tr><td class="dim">No data found</td><td>Belum ada soal di kelas ini. Tambahkan soal pertama.</td></tr>
+    <tr><td class="dim">Tombol "Publish", lalu notifikasi "Submit successful"</td><td>Tombol "Terbitkan", lalu notifikasi "Kuis diterbitkan"</td></tr>
+    <tr><td class="dim">Konfigurasi webhook notifikasi</td><td>Atur pemberitahuan</td></tr>
+  </table>
+  </div>
+  <p class="s dim mt2">Pesan error nggak perlu minta maaf, tapi nggak boleh samar: sebutkan apa yang terjadi dan apa langkah berikutnya. Layar kosong adalah ajakan untuk bertindak, bukan sekadar tulisan "kosong".</p>
+</section>
+
+<section class="slide" data-chap="Bab 1: Pondasi UX" data-title="Aksesibilitas dan HP">
+  <div class="g2 grow">
+    <div>
+      <h2>Bisa dipakai di bawah matahari, dengan satu jempol</h2>
+      <p class="lede">Aksesibilitas bukan fitur tambahan. Ini yang bikin aplikasimu tetap bisa dipakai di HP murah, layar redup, atau tanpa mouse.</p>
+      <div class="soft mt2">
+        <p class="s">Sebagian besar user internet Indonesia mengakses lewat HP. Laptop developer bukan gambaran device user. Uji di lebar 375, 768, 1024, dan 1440 piksel, lalu coba di HP asli.</p>
+      </div>
+    </div>
+    <div class="card">
+      <table class="t-sm">
+        <tr><td style="width:36%"><b>Kontras teks</b></td><td class="dim">Minimal 4.5:1 untuk teks biasa</td></tr>
+        <tr><td><b>Fokus keyboard</b></td><td class="dim">Selalu terlihat, jangan dihapus dengan <code>outline:none</code></td></tr>
+        <tr><td><b>Target sentuh</b></td><td class="dim">Minimal 24px, idealnya sekitar 44px di HP</td></tr>
+        <tr><td><b>Makna warna</b></td><td class="dim">Status merah atau hijau tetap diberi teks atau ikon</td></tr>
+        <tr><td><b>Ukuran teks</b></td><td class="dim">Isi minimal 16px, panjang baris sekitar 60 sampai 75 karakter</td></tr>
+        <tr><td><b>Gerak</b></td><td class="dim">Ikuti <code>prefers-reduced-motion</code></td></tr>
+        <tr><td><b>Tata letak</b></td><td class="dim">Nama panjang, angka besar, dan zoom 200% nggak memotong teks</td></tr>
+        <tr><td><b>Tabel lebar</b></td><td class="dim">Scroll di dalam wadahnya sendiri atau berubah jadi daftar di HP</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BAB 2 ============================ -->
+<section class="slide board" data-chap="Bab 2: AI dan desain" data-title="Bab 2: AI dan desain">
+  <div class="grow center-v">
+    <span class="chap-no">bab 2</span>
+    <h1 class="chap-title">Kenapa semua desain AI terlihat mirip</h1>
+    <p class="lede">Masalahnya jarang di kemampuan AI. Masalahnya di arahan yang kosong, sehingga AI mengisinya dengan jawaban paling aman.</p>
+    <ul class="chap-list">
+      <li>Cara AI "memilih" desain</li><li>Apa yang diisi AI kalau kamu diam</li>
+      <li>Katalog pola yang gampang ketahuan</li><li>Tes sederhana untuk hasilmu</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Cara AI memilih desain">
+  <div class="g-r grow ai-c">
+    <div>
+      <h2>AI menebak jawaban yang paling sering muncul</h2>
+      <p class="lede">Model bahasa dilatih untuk menghasilkan kelanjutan yang paling mungkin berdasarkan data latihnya. Untuk desain, artinya: versi rata-rata dari ribuan halaman serupa.</p>
+      <p class="mt2">Brief "bikinin landing page SaaS" nggak memberi alasan untuk menyimpang dari rata-rata. Begitu brief menempel ke industri, audiens, dan bahan asli produk, pilihan rata-rata jadi nggak cocok lagi, dan AI terpaksa mengambil keputusan yang lebih spesifik.</p>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 420 330" style="width:100%;height:auto" aria-label="Banyak referensi menyempit menjadi satu hasil rata-rata">
+        <g fill="var(--tint)" stroke="var(--rule)">
+          <rect x="10" y="10" width="70" height="48" rx="8"/><rect x="95" y="10" width="70" height="48" rx="8"/><rect x="180" y="10" width="70" height="48" rx="8"/><rect x="265" y="10" width="70" height="48" rx="8"/><rect x="350" y="10" width="60" height="48" rx="8"/>
+          <rect x="30" y="70" width="70" height="48" rx="8"/><rect x="120" y="70" width="70" height="48" rx="8"/><rect x="220" y="70" width="70" height="48" rx="8"/><rect x="315" y="70" width="70" height="48" rx="8"/>
+        </g>
+        <path d="M40 130 C120 200 170 210 190 236 M380 130 C300 200 250 210 230 236 M210 124 V236" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="5 6"/>
+        <rect x="120" y="240" width="180" height="80" rx="12" fill="var(--ink)"/>
+        <rect x="150" y="258" width="120" height="10" rx="4" fill="var(--paper)" opacity=".8"/>
+        <rect x="170" y="276" width="80" height="7" rx="3" fill="var(--paper)" opacity=".45"/>
+        <rect x="185" y="293" width="50" height="14" rx="7" fill="#8B6CFF"/>
+        <text x="312" y="292" font-family="Caveat, cursive" font-weight="700" font-size="24" fill="var(--pen)">rata-rata</text>
+      </svg>
+      <p class="xs dim mt0">Semakin umum brief-nya, semakin hasil jatuh ke tengah.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Yang diisi AI kalau kamu diam">
+  <h2 class="wide">Kalau kamu nggak menentukan, AI yang menentukan</h2>
+  <p class="lede">Setiap keputusan yang nggak ada di prompt tetap harus diambil. AI mengambilnya dengan default.</p>
+  <div class="tscroll mt2">
+  <table class="t-sm">
+    <thead><tr><th style="width:16%">Keputusan</th><th style="width:40%">Default yang biasanya muncul</th><th>Yang harusnya datang dari kamu</th></tr></thead>
+    <tr><td><b>Warna</b></td><td class="dim">Gradien ungu-biru, atau cream dengan aksen terracotta, atau hitam dengan satu neon</td><td>Warna brand, suasana industri, kebutuhan kontras</td></tr>
+    <tr><td><b>Font</b></td><td class="dim">Satu sans netral yang sama di semua proyek, kadang serif besar untuk kesan "premium"</td><td>Karakter produk, bahasa, keterbacaan di HP</td></tr>
+    <tr><td><b>Layout</b></td><td class="dim">Hero di tengah, tiga kartu fitur sama besar, testimoni, CTA, footer</td><td>Tugas utama layar dan urutan kebutuhan user</td></tr>
+    <tr><td><b>Konten</b></td><td class="dim">Nama "John Doe", perusahaan "Acme", angka 99.9%, kata "seamless"</td><td>Data dan istilah asli dari produkmu</td></tr>
+    <tr><td><b>Motion</b></td><td class="dim">Semua section fade naik saat discroll, hover sama di semua kartu</td><td>Aksi mana yang butuh tanda perubahan</td></tr>
+    <tr><td><b>State</b></td><td class="dim">Hanya keadaan data lengkap</td><td>Bentuk respons API-mu: kosong, error, paginasi</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Pola warna default">
+  <h2 class="wide">Pola yang gampang ketahuan: warna</h2>
+  <div class="g4 mt3">
+    <div>
+      <div class="sw-row"><div class="sw" style="background:#F4F1EA;color:#666">#F4F1EA</div><div class="sw" style="background:#D97757;color:#fff">#D97757</div></div>
+      <h3 class="mt1" style="font-size:19px">Cream dan terracotta</h3>
+      <p class="xs dim mt0">Biasanya dengan headline serif besar. Kesan "hangat dan premium" instan.</p>
+    </div>
+    <div>
+      <div class="sw-row"><div class="sw" style="background:#0B0B0B;color:#aaa">#0B0B0B</div><div class="sw" style="background:#B6FF3B;color:#111">neon</div></div>
+      <h3 class="mt1" style="font-size:19px">Hampir hitam dan satu neon</h3>
+      <p class="xs dim mt0">Kesan "tech" yang dipakai semua startup developer tool.</p>
+    </div>
+    <div>
+      <div class="sw-row"><div class="sw" style="background:linear-gradient(135deg,#35197A,#7440E6,#4FA3FF);color:#fff">glow</div></div>
+      <h3 class="mt1" style="font-size:19px">Gradien ungu-biru</h3>
+      <p class="xs dim mt0">Plus tombol bercahaya dan teks gradien. Tanda paling klasik.</p>
+    </div>
+    <div>
+      <div class="sw-row"><div class="sw" style="background:#F7F5F1;color:#666">bone</div><div class="sw" style="background:#9C6E2A;color:#fff">brass</div></div>
+      <h3 class="mt1" style="font-size:19px">Beige dan kuningan</h3>
+      <p class="xs dim mt0">Default untuk brand "artisan" dan produk premium. Semua jadi terlihat sama.</p>
+    </div>
+  </div>
+  <div class="soft mt3">
+    <p class="s"><b>Aturan warna yang lebih aman:</b> satu warna aksen per halaman, dipakai konsisten dari atas sampai footer. Netral dari satu keluarga (jangan campur abu hangat dan abu dingin). Shadow diberi sedikit warna latar, bukan hitam murni. Kalau brand memang ungu, pakai ungu dengan sengaja: palet rapi, gradien secukupnya.</p>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Pola layout dan komponen">
+  <h2 class="wide">Pola layout dan komponen</h2>
+  <div class="g3 mt3">
+    <div class="card">
+      <svg viewBox="0 0 300 150" style="width:100%;height:auto" aria-hidden="true">
+        <rect x="0" y="0" width="300" height="150" rx="12" fill="var(--tint)"/>
+        <rect x="95" y="22" width="110" height="12" rx="5" fill="var(--ink-3)"/><rect x="70" y="42" width="160" height="16" rx="6" fill="var(--ink)"/>
+        <rect x="126" y="66" width="48" height="14" rx="7" fill="#8B6CFF"/>
+        <rect x="16" y="94" width="84" height="44" rx="10" fill="var(--card)"/><rect x="108" y="94" width="84" height="44" rx="10" fill="var(--card)"/><rect x="200" y="94" width="84" height="44" rx="10" fill="var(--card)"/>
+      </svg>
+      <h3 class="mt1" style="font-size:19px">Hero tengah dan tiga kartu kembar</h3>
+      <p class="xs dim mt0">Semua konten dipotong jadi kartu dengan radius, shadow, dan ukuran sama, padahal pentingnya beda.</p>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 300 150" style="width:100%;height:auto" aria-hidden="true">
+        <rect x="0" y="0" width="300" height="150" rx="12" fill="var(--tint)"/>
+        <rect x="16" y="16" width="120" height="14" rx="5" fill="var(--ink)"/>
+        <rect x="16" y="44" width="268" height="92" rx="10" fill="var(--card)"/>
+        <rect x="28" y="56" width="70" height="8" rx="3" fill="var(--rule)"/><rect x="28" y="72" width="244" height="6" rx="3" fill="var(--rule)"/><rect x="28" y="86" width="200" height="6" rx="3" fill="var(--rule)"/><rect x="28" y="100" width="220" height="6" rx="3" fill="var(--rule)"/>
+        <rect x="28" y="116" width="40" height="10" rx="3" fill="#6FB59A"/>
+      </svg>
+      <h3 class="mt1" style="font-size:19px">Dashboard palsu dari div</h3>
+      <p class="xs dim mt0">Kotak-kotak abu yang pura-pura jadi screenshot produk. Lebih baik pakai screenshot asli atau tidak sama sekali.</p>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 300 150" style="width:100%;height:auto" aria-hidden="true">
+        <rect x="0" y="0" width="300" height="150" fill="var(--tint)"/>
+        <path d="M0 30H300M0 90H300M100 0V150M200 0V150" stroke="var(--ink-3)" stroke-width="1"/>
+        <rect x="12" y="10" width="70" height="8" fill="var(--ink)"/><rect x="112" y="40" width="76" height="40" fill="var(--card)"/><rect x="212" y="100" width="76" height="40" fill="var(--card)"/>
+      </svg>
+      <h3 class="mt1" style="font-size:19px">Gaya koran serba garis</h3>
+      <p class="xs dim mt0">Garis tipis di mana-mana dan radius nol, dipakai untuk kesan "editorial" padahal isinya bukan editorial.</p>
+    </div>
+  </div>
+  <p class="s dim mt3">Juga sering muncul: glassmorphism di semua elemen, bento grid untuk konten yang nggak butuh grid, dan komponen library yang dipakai dalam tampilan bawaannya tanpa diubah sama sekali.</p>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Pola tipografi dan hiasan">
+  <h2 class="wide">Tipografi dan "hiasan template"</h2>
+  <div class="g2 mt2" style="gap:36px">
+    <div class="card" style="position:relative">
+      <p style="font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--ink-3)">FITUR UTAMA · 2026 · V2.0</p>
+      <p style="font-family:var(--display);font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:8px">Kelola tugasmu lebih <span style="color:#7440E6;font-style:italic">cepat</span></p>
+      <p class="xs dim mt0">Tingkatkan produktivitas dengan pengalaman seamless — tanpa batas.</p>
+      <p style="margin-top:12px;font-weight:700;color:#7440E6">Mulai sekarang &rarr;</p>
+      <div style="display:flex;gap:16px;margin-top:14px;font-family:var(--mono);font-size:13px;color:var(--ink-3)"><span>01 Cepat</span><span>02 Aman</span><span>03 Mudah</span></div>
+      <p class="hand" style="position:absolute;right:18px;top:10px;transform:rotate(-4deg)">kelihatan template</p>
+    </div>
+    <div class="card">
+      <p style="font-family:var(--display);font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.05">Semua tugas tim, satu tampilan</p>
+      <p class="xs dim mt0">Lihat siapa mengerjakan apa minggu ini, geser tugas antar anggota, dan tandai yang sudah beres.</p>
+      <p style="margin-top:12px;font-weight:700;color:var(--link)">Coba dengan tim kecil</p>
+    </div>
+  </div>
+  <div class="g2 mt2" style="gap:36px">
+    <ul class="dots pen xs">
+      <li>Label kapital berjarak lebar di atas setiap judul, pakai font mono padahal bukan kode</li>
+      <li>Teks meta disambung titik tengah, dan em dash sebagai jeda gaya</li>
+      <li>Satu kata di judul dibuat miring, tebal, atau beda warna</li>
+      <li>Panah otomatis di ujung tombol dan tautan</li>
+      <li>Nomor 01/02/03 padahal isinya bukan urutan</li>
+    </ul>
+    <ul class="dots ok xs">
+      <li>Judul menyebut hal nyata yang dikerjakan user</li>
+      <li>Penekanan lewat hierarki, bukan dekorasi satu kata</li>
+      <li>Label hanya ada kalau membantu navigasi</li>
+      <li>Tombol menyebut hasil aksinya</li>
+      <li>Penomoran hanya untuk langkah yang berurutan</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Pola isi dan motion">
+  <div class="g2 grow">
+    <div>
+      <h2>Isi dan gerak yang terasa template</h2>
+      <h3 class="mt3">Isi</h3>
+      <table class="t-sm mt0">
+        <tr><td class="dim" style="width:48%">John Doe, Budi Santoso</td><td>Nama yang wajar untuk konteks, misalnya Rina Kartika, Dimas Pratama</td></tr>
+        <tr><td class="dim">Acme, PT Maju Jaya, NexaFlow</td><td>Nama yang terdengar nyata di industrinya</td></tr>
+        <tr><td class="dim">99.9%, 10K+, Rp1.000.000</td><td>Angka yang organik: 87,4%, 2.316 siswa</td></tr>
+        <tr><td class="dim">Seamless, revolusioner, tanpa batas</td><td>Kata kerja konkret: catat, bagi, bayar</td></tr>
+        <tr><td class="dim">Welcome back 👋, emoji jadi ikon</td><td>Sapaan yang berguna, ikon dari satu set konsisten</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="margin-top:4px">Motion</h3>
+      <ul class="dots pen s mt1">
+        <li>Setiap section fade sambil naik saat discroll</li>
+        <li>Hover efek terangkat yang sama di semua kartu</li>
+        <li>Animasi berulang tanpa henti di latar</li>
+        <li>Kursor custom dan scroll yang dibajak</li>
+      </ul>
+      <div class="soft mt2">
+        <p class="s"><b>Pembandingnya:</b> gerak yang menjawab aksi user. Drawer yang masuk dari arah tombolnya, tombol yang mengecil sedikit saat ditekan, angka yang berganti setelah disimpan. Gerak ini menunjukkan apa yang berubah, jadi terasa punya alasan.</p>
+      </div>
+      <p class="hand mt2" style="transform:rotate(-1.5deg)">cara merancang motion yang benar ada di bab 3</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 2: AI dan desain" data-title="Contoh: default vs dengan brief">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+    <h2 class="wide">Prompt yang sama, beda arahan</h2>
+    <div class="seg" role="group" aria-label="Bandingkan versi">
+      <button aria-pressed="true" data-mock="ai">Keluaran default</button>
+      <button aria-pressed="false" data-mock="real">Dengan brief</button>
+    </div>
+  </div>
+  <div class="g-r mt2" style="gap:36px">
+    <div id="mock-ai" class="mock mock-ai">
+      <div class="eyb">PLATFORM BELAJAR · AI-POWERED · V2.0</div>
+      <div class="h">Belajar coding jadi lebih <em>seru</em></div>
+      <div class="sub">Tingkatkan skill-mu dengan pengalaman belajar yang seamless dan revolusioner.</div>
+      <div class="cta">Mulai Sekarang &rarr;</div>
+      <div class="meta">10K+ Siswa · 99.9% Puas · Gratis Selamanya</div>
+      <div class="cards">
+        <div class="cardx"><b>01</b><div>Belajar Interaktif</div></div>
+        <div class="cardx"><b>02</b><div>Kuis Seru</div></div>
+        <div class="cardx"><b>03</b><div>Sertifikat Resmi</div></div>
+      </div>
+    </div>
+    <div id="mock-real" class="mock mock-real" hidden>
+      <div>
+        <div class="h">Lanjutkan kuis Laravel dari soal terakhirmu</div>
+        <div class="sub">Jawaban tersimpan otomatis. Setiap soal langsung dinilai dan ada pembahasannya.</div>
+        <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+          <button class="b b-go">Lanjut soal 7</button>
+          <button class="b b-secondary">Semua kursus</button>
+        </div>
+        <p style="font-size:13px;color:#5A6560;margin-top:18px">Dibuka 2.316 siswa SMK minggu ini</p>
+      </div>
+      <div class="resume">
+        <div style="font-weight:700;font-size:15px">Laravel 12 Backend</div>
+        <div style="font-size:13px;color:#5A6560;margin-top:4px">Soal 7 dari 12, terakhir dibuka kemarin</div>
+        <div class="pbar"><i></i></div>
+        <div class="qrow" style="margin-top:10px;font-size:14px"><span>Routing dan controller</span><span style="font-size:13px;color:#11734A;font-weight:700">Nilai 88</span></div>
+        <div class="qrow" style="font-size:14px"><span>Eloquent relationship</span><span style="font-size:13px;color:#5A6560">Dikerjakan</span></div>
+        <div class="qrow" style="font-size:14px"><span>Form request</span><span style="font-size:13px;color:#5A6560">Belum</span></div>
+      </div>
+    </div>
+    <div>
+      <h3 id="mock-title" style="font-size:21px">Yang bikin kelihatan template</h3>
+      <ul class="dots pen mt1 s" id="mock-notes">
+        <li>Label kapital mono dengan titik tengah</li>
+        <li>Satu kata diberi gradien</li>
+        <li>"Seamless", "revolusioner", 99.9%</li>
+        <li>Panah di tombol dan glow ungu</li>
+        <li>Tiga kartu kembar bernomor yang bukan urutan</li>
+        <li>Nggak ada satu pun konten asli produk</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide board" data-chap="Bab 2: AI dan desain" data-title="Tes sederhana">
+  <div class="grow center-v">
+    <p class="statement">Kalau prompt yang mirip dijalankan untuk produk lain dan hasilnya kebayang sama, desainnya belum punya produkmu.</p>
+    <p class="lede mt3">Semua pola di bab ini sah dipakai kalau memang pilihan sadar untuk brief tertentu. Yang dihindari adalah pola yang keluar otomatis tanpa alasan yang menempel ke produk.</p>
+  </div>
+</section>
+
+<!-- ============================ BAB 3 ============================ -->
+<section class="slide board" data-chap="Bab 3: Desain yang nggak AI" data-title="Bab 3: Desain yang nggak AI">
+  <div class="grow center-v">
+    <span class="chap-no">bab 3</span>
+    <h1 class="chap-title">Bikin desain yang nggak kelihatan AI</h1>
+    <p class="lede">Kualitas hasil ditentukan oleh konteks dan keinginan yang kita kasih. Tool apa pun yang dipakai, alurnya sama.</p>
+    <ul class="chap-list">
+      <li>Riset subjek dan design read</li><li>Tiga kenop arah desain</li>
+      <li>Referensi jadi aturan (DESIGN.md)</li><li>Tool, prompt, variasi</li>
+      <li>Aturan override default</li><li>Motion dan detail craft</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Alur tujuh langkah">
+  <h2 class="wide">Tujuh langkah, berurutan</h2>
+  <p class="lede">Langkah 1 sampai 4 terasa lambat. Justru ini yang bikin langkah 5 sampai 7 cepat dan nggak perlu diulang dari nol.</p>
+  <div class="route" style="grid-template-columns:repeat(7,1fr)">
+    <div class="stop"><div class="pin">1</div><h3 style="font-size:19px">Riset subjek</h3><p class="xs">User, situasi, tugas utama, bahan asli.</p></div>
+    <div class="stop"><div class="pin">2</div><h3 style="font-size:19px">Design read</h3><p class="xs">Satu kalimat arah, lalu atur tiga kenop.</p></div>
+    <div class="stop"><div class="pin">3</div><h3 style="font-size:19px">Referensi</h3><p class="xs">Website nyata, Pinterest, Figma, library.</p></div>
+    <div class="stop"><div class="pin">4</div><h3 style="font-size:19px">Kunci aturan</h3><p class="xs">DESIGN.md yang selalu dibaca agent.</p></div>
+    <div class="stop"><div class="pin">5</div><h3 style="font-size:19px">Generate arah</h3><p class="xs">Prompt lengkap, minta 3 arah berbeda.</p></div>
+    <div class="stop"><div class="pin">6</div><h3 style="font-size:19px">Rakit dan poles</h3><p class="xs">Kustom komponen, motion beralasan.</p></div>
+    <div class="stop"><div class="pin">7</div><h3 style="font-size:19px">Audit</h3><p class="xs">State, performa, checklist.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Langkah 1: riset subjek">
+  <h2 class="wide">Langkah 1: riset subjeknya dulu, warna belakangan</h2>
+  <p class="lede" style="font-size:19px;max-width:80ch">Pilihan visual yang khas datang dari dunia produknya: industri, audiens, bahan, dan kebiasaan visual yang sudah melekat di sana.</p>
+  <div class="g-l mt2" style="grid-template-columns:4fr 8fr;gap:36px">
+    <div class="card">
+      <h3 style="font-size:19px">Enam pertanyaan</h3>
+      <table class="t-sm mt0">
+        <tr><td style="width:48%"><b>Siapa user-nya?</b></td><td class="dim">Umur, keahlian, frekuensi</td></tr>
+        <tr><td><b>Situasi pakai?</b></td><td class="dim">Device, sinyal, sambil apa</td></tr>
+        <tr><td><b>Tugas utama?</b></td><td class="dim">Satu kata kerja</td></tr>
+        <tr><td><b>Konvensi industri?</b></td><td class="dim">Pola yang dikenal user</td></tr>
+        <tr><td><b>Bahan asli?</b></td><td class="dim">Logo, foto, istilah, data</td></tr>
+        <tr><td><b>Satu pembeda?</b></td><td class="dim">Hanya milik produk ini</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="font-size:19px">Tiga produk, tiga arah yang berbeda total</h3>
+      <div class="tscroll mt0">
+      <table class="t-sm">
+        <thead><tr><th style="width:16%"></th><th>Kasir warung</th><th>Kuis siswa SMK</th><th>Klinik gigi</th></tr></thead>
+        <tr><td><b>User</b></td><td class="dim">Pemilik usia 40-an, di balik etalase</td><td class="dim">Remaja, HP, sela jam pelajaran</td><td class="dim">Pasien cemas, orang tua</td></tr>
+        <tr><td><b>Suasana</b></td><td class="dim">Tegas, angka besar, kontras tinggi</td><td class="dim">Segar, progres terasa</td><td class="dim">Tenang, bersih, tepercaya</td></tr>
+        <tr><td><b>Kepadatan</b></td><td class="dim">Padat, tombol besar</td><td class="dim">Sedang, satu fokus</td><td class="dim">Longgar</td></tr>
+        <tr><td><b>Pola</b></td><td class="dim">Grid produk, total selalu terlihat</td><td class="dim">Lanjutkan, soal, pembahasan</td><td class="dim">Layanan, dokter, booking</td></tr>
+        <tr><td><b>Gerak</b></td><td class="dim">Hampir nol</td><td class="dim">Momen kecil saat benar</td><td class="dim">Halus, tanpa kejutan</td></tr>
+        <tr><td><b>Hindari</b></td><td class="dim">Teks kecil, warna pucat</td><td class="dim">Kaku ala sistem kantor</td><td class="dim">Neon, animasi ramai</td></tr>
+      </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Langkah 2: design read">
+  <div class="g-l grow ai-c">
+    <div>
+      <h2 class="h-md">Langkah 2: tulis design read satu kalimat</h2>
+      <p class="lede">Sebelum ada kode, rangkum arahnya dalam satu kalimat. Minta AI menuliskannya juga. Kalau kalimatnya meleset, koreksi di sini, bukan setelah 500 baris kode jadi.</p>
+      <p class="mt2 s dim">Kalau brief-nya ambigu, cukup tanyakan satu hal yang paling menentukan, misalnya "lebih ke rapi seperti aplikasi kerja atau ekspresif seperti landing page kampanye?"</p>
+    </div>
+    <div>
+      <div class="card">
+        <p class="xs dim">Pola kalimat</p>
+        <p style="font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-top:8px">"Aku membaca ini sebagai <u>jenis halaman</u> untuk <u>audiens</u>, dengan bahasa visual <u>suasana</u>, condong ke <u>arah atau sistem desain</u>."</p>
+      </div>
+      <div class="soft mt2">
+        <p class="xs dim">Contoh</p>
+        <ul class="dots s mt0">
+          <li>Dashboard kuis untuk siswa SMK di HP, dengan bahasa visual segar dan progres yang jelas, condong ke kepadatan sedang dan gerak minim.</li>
+          <li>Aplikasi kasir untuk pemilik warung, dengan bahasa visual tegas berkontras tinggi, condong ke angka besar dan tanpa animasi.</li>
+          <li>Website layanan publik untuk semua umur, dengan bahasa visual yang mengutamakan kepercayaan, condong ke sistem desain pemerintah yang sudah teruji.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Tiga kenop arah desain">
+  <div class="g-l grow">
+    <div>
+      <h2 class="h-md">Tiga kenop yang bisa kamu tulis di prompt</h2>
+      <p class="lede" style="font-size:19px">Skala 1 sampai 10. Geser untuk melihat efeknya pada contoh di kanan.</p>
+      <div class="knob"><label for="k-var">Variasi layout <span id="k-var-v">5</span></label><input id="k-var" type="range" min="1" max="10" value="5"><p class="xs dim">1 simetris dan aman, 10 asimetris dan eksperimental</p></div>
+      <div class="knob"><label for="k-mot">Intensitas gerak <span id="k-mot-v">3</span></label><input id="k-mot" type="range" min="1" max="10" value="3"><p class="xs dim">1 statis, 10 sinematik</p></div>
+      <div class="knob"><label for="k-den">Kepadatan visual <span id="k-den-v">4</span></label><input id="k-den" type="range" min="1" max="10" value="4"><p class="xs dim">1 lapang seperti galeri, 10 padat seperti kokpit</p></div>
+
+    </div>
+    <div><div class="kprev" id="kprev">
+      <div id="k-head">
+        <div class="kh" id="k-title" style="font-size:40px">Latihan soal yang langsung dinilai</div>
+        <p id="k-sub" style="font-size:15px;color:#5A6560;margin-top:10px;max-width:38ch">Kerjakan per bab, lihat pembahasan setiap jawaban.</p>
+        <div id="k-cta-row" style="display:flex;gap:10px;margin-top:16px;align-items:center"><button class="b" id="k-btn" style="background:#1B6B52;color:#fff">Mulai latihan</button><span id="k-motion" style="font-size:13px;color:#5A6560"></span></div>
+      </div>
+      <div class="kitems" id="k-items"></div>
+    </div>
+      <table class="t-sm mt1">
+        <thead><tr><th>Jenis</th><th>Layout</th><th>Gerak</th><th>Padat</th></tr></thead>
+        <tr><td>Dashboard kerja harian</td><td>3</td><td>2</td><td>7</td></tr>
+        <tr><td>Landing produk digital</td><td>7</td><td>6</td><td>4</td></tr>
+        <tr><td>Portofolio kreatif</td><td>8</td><td>7</td><td>3</td></tr>
+        <tr><td>Layanan publik</td><td>3</td><td>2</td><td>5</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Langkah 3: referensi">
+  <h2 class="wide">Langkah 3: kumpulkan referensi, ambil alasannya</h2>
+  <p class="lede" style="font-size:19px;max-width:80ch">Jangan menyalin satu website. Kumpulkan beberapa, catat apa yang bagus dan kenapa cocok untuk produkmu.</p>
+  <div class="tscroll mt2">
+  <table class="t-sm">
+    <thead><tr><th style="width:17%">Sumber</th><th style="width:37%">Ambil apa</th><th>Hati-hati</th></tr></thead>
+    <tr><td><b>Website nyata</b></td><td>Alur yang sudah teruji jutaan user: checkout, onboarding, pencarian</td><td class="dim">Paling jujur, lebih berguna dari mockup cantik yang belum pernah dipakai</td></tr>
+    <tr><td><b>Pinterest</b></td><td>Moodboard suasana, warna, komposisi, tipografi</td><td class="dim">Banyak konsep yang nggak pernah jadi produk, jangan ambil alurnya</td></tr>
+    <tr><td><b>Figma</b></td><td>Salin frame dan komponen, periksa spacing, sambungkan ke agent lewat MCP</td><td class="dim">Rapikan nama layer dan auto layout sebelum dibaca AI</td></tr>
+    <tr><td><b>21st.dev</b></td><td>Komponen React dan Tailwind buatan komunitas, bisa lewat MCP</td><td class="dim">Sesuaikan token warna, radius, font sebelum dipakai</td></tr>
+    <tr><td><b>Motion Primitives</b></td><td>Komponen animasi siap pakai (React, Tailwind, Motion)</td><td class="dim">Pilih satu dua untuk momen penting, jangan disebar</td></tr>
+    <tr><td><b>Watermelon UI</b></td><td>Blok halaman, dashboard, komponen animasi, tersedia MCP dan llms.txt</td><td class="dim">Bagus untuk melihat komposisi halaman utuh</td></tr>
+    <tr><td><b>Framer</b></td><td>Referensi interaksi, transisi, dan prototipe cepat</td><td class="dim">Amati timing dan easing, bukan menyalin tampilan</td></tr>
+    <tr><td><b>Three.js</b></td><td>3D di web untuk produk yang memang butuh 3D</td><td class="dim">Berat untuk HP murah, siapkan versi statis sebagai cadangan</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Screenshot jadi analisis">
+  <div class="g-l grow">
+    <div>
+      <h2 class="h-md">Screenshot, analisis, baru aturan</h2>
+      <p class="lede">AI yang langsung disuruh "bikin seperti ini" cenderung menyalin permukaan. AI yang disuruh menganalisis dulu akan menangkap prinsipnya.</p>
+      <ul class="dots mt2 s">
+        <li>Ambil 3 sampai 5 referensi yang berbeda, bukan 5 yang mirip</li>
+        <li>Minta AI menjelaskan kenapa tiap referensi terasa rapi</li>
+        <li>Minta AI memisahkan yang cocok dan yang nggak cocok untuk produkmu</li>
+        <li>Di Google Stitch, design system bisa diekstrak langsung dari URL website</li>
+      </ul>
+    </div>
+    <div class="code">
+      <button class="copy">Salin</button>
+<pre><span class="c"># Prompt: referensi jadi DESIGN.md</span>
+Aku lampirkan 4 screenshot referensi.
+Produk: platform kuis untuk siswa SMK, dipakai
+lewat HP Android di sela jam pelajaran.
+
+Jangan bikin kode dulu. Analisis:
+1. Apa yang bikin tiap referensi terasa rapi:
+   hierarki, spacing, tipografi, warna, gerak.
+2. Mana yang cocok untuk produkku, mana yang
+   tidak, dan alasannya.
+3. Pola template apa yang harus dihindari.
+
+Lalu tulis DESIGN.md berisi:
+- produk, audiens, tugas utama
+- design read satu kalimat + nilai tiga kenop
+- token warna (hex + peran), tipografi, spacing
+- radius dan shadow per level hierarki
+- aturan komponen: tombol, form, kartu, navigasi
+- keadaan wajib: kosong, memuat, gagal, berhasil
+- motion: kapan boleh, durasi, easing
+- nada copy dan contoh kalimat
+- daftar larangan
+- batas performa (ukuran gambar, library)</pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Contoh DESIGN.md">
+  <div class="g-l grow">
+    <div>
+      <h2>Contoh DESIGN.md yang berguna</h2>
+      <p class="lede">Singkat, spesifik, dan setiap aturan punya alasan. Tulis peran warna, bukan sekadar daftar hex.</p>
+      <div class="soft mt2">
+        <p class="s"><b>Kenapa perlu file?</b> Karena agent nggak ingat percakapan kemarin. Tanpa file ini, setiap prompt baru mulai lagi dari default, dan halaman kedua bisa terlihat seperti produk yang berbeda dari halaman pertama.</p>
+      </div>
+      <p class="hand mt2" style="transform:rotate(-1.5deg)">update tiap ada keputusan desain baru</p>
+    </div>
+    <div class="code">
+      <button class="copy">Salin</button>
+<pre style="font-size:12px;line-height:1.38"><span class="k"># DESIGN.md: Latih (platform kuis SMK)</span>
+
+<span class="k">## Arah</span>
+Dashboard kuis untuk siswa SMK di HP. Segar,
+progres jelas. Layout 4, gerak 3, padat 5.
+
+<span class="k">## Warna</span>
+- Hijau #1B6B52: aksi utama, progres aktif
+- Kuning #FFD43B: sorotan satu hal per layar
+- Tinta #17201C: teks utama
+- Permukaan #EEF3F0: pengelompokan
+- Merah #C23321 / Hijau #11734A: salah / benar,
+  selalu disertai ikon dan teks
+
+<span class="k">## Tipografi</span>
+Bricolage Grotesque judul, Figtree isi, min 16px.
+
+<span class="k">## Komponen</span>
+- Satu tombol primary per layar
+- Kartu hanya untuk item yang bisa diklik
+- Radius 18 wadah, 11 tombol, 6 chip
+
+<span class="k">## Motion</span>
+Hanya respons aksi. 150-250ms, ease-out.
+
+<span class="k">## Performa</span>
+Gambar WebP maks 200KB. Tanpa library 3D.
+<span class="k">## Hindari</span>
+Gradien ungu, label kapital, emoji sebagai ikon,
+nomor 01/02/03 non-urutan, "Welcome back".</pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Langkah 4: kunci aturan">
+  <div class="g2 grow ai-c">
+    <div>
+      <h2>Langkah 4: taruh aturannya di tempat yang selalu dibaca</h2>
+      <p class="lede">Setiap agent coding punya lokasi file instruksi. Isinya dibaca otomatis di setiap sesi, jadi kamu nggak perlu mengulang arahan desain di setiap prompt.</p>
+      <p class="s dim mt2">Tips: simpan DESIGN.md di root repo, lalu file rules masing-masing tool cukup berisi "ikuti DESIGN.md" plus aturan khusus tool itu. Satu sumber, banyak tool.</p>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Tool</th><th>Lokasi</th></tr></thead>
+        <tr><td><b>Antigravity</b></td><td><code>.agents/rules/design.md</code><br><span class="xs dim">atur mode Always On</span></td></tr>
+        <tr><td><b>Claude Code</b></td><td><code>CLAUDE.md</code> atau <code>.claude/rules/</code></td></tr>
+        <tr><td><b>Cursor</b></td><td><code>.cursor/rules/</code></td></tr>
+        <tr><td><b>Codex dan tool lain</b></td><td><code>AGENTS.md</code></td></tr>
+        <tr><td><b>Google Stitch</b></td><td>Impor dan ekspor <code>DESIGN.md</code></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Langkah 5: pilih jalur tool">
+  <h2 class="wide">Langkah 5: pilih jalur tool sesuai tahap</h2>
+  <div class="g4 mt3">
+    <div class="lined">
+      <h3 style="font-size:21px">Google Stitch lalu AI Studio</h3>
+      <p class="xs dim mt1"><b style="color:var(--ink)">Tahap:</b> eksplorasi visual</p>
+      <p class="s mt1">Generate beberapa layar sekaligus di kanvas, taruh referensi di sana, ekstrak design system dari URL. Hasilnya bisa diekspor ke AI Studio untuk diberi logika dan dibagikan sebagai prototipe, atau ke Antigravity.</p>
+    </div>
+    <div class="lined">
+      <h3 style="font-size:21px">Gemini Canvas</h3>
+      <p class="xs dim mt1"><b style="color:var(--ink)">Tahap:</b> validasi ide cepat</p>
+      <p class="s mt1">Prototipe satu halaman langsung dari percakapan. Cocok untuk menguji alur atau tata letak sebelum serius membangun.</p>
+    </div>
+    <div class="lined">
+      <h3 style="font-size:21px">Claude (HTML)</h3>
+      <p class="xs dim mt1"><b style="color:var(--ink)">Tahap:</b> prototipe interaktif</p>
+      <p class="s mt1">Halaman atau tool kecil yang langsung bisa dibuka dan dibagikan. Enak untuk iterasi detail interaksi lewat chat, termasuk demo state dan motion.</p>
+    </div>
+    <div class="lined">
+      <h3 style="font-size:21px">Antigravity, Claude Code, Cursor</h3>
+      <p class="xs dim mt1"><b style="color:var(--ink)">Tahap:</b> produksi</p>
+      <p class="s mt1">Masuk ke repo nyata bersama backend. Rules selalu dibaca, komponen konsisten, bisa tersambung MCP ke Figma atau library komponen.</p>
+    </div>
+  </div>
+  <div class="soft mt3"><p class="s"><b>Pola yang disarankan:</b> eksplor arah di tool visual, kunci keputusan di DESIGN.md, bangun versi produksi di agent yang terhubung dengan repo dan API-mu.</p></div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Anatomi prompt">
+  <h2 class="wide">Anatomi prompt yang bikin hasil spesifik</h2>
+  <div class="g-l mt2">
+    <div>
+      <span class="chip bad">Prompt kosong</span>
+<pre class="mt1">Buatkan dashboard kursus yang modern,
+clean, dan menarik.</pre>
+      <p class="xs dim mt1">"Modern, clean, menarik" nggak memberi keputusan apa pun. AI mengisi semua sisanya dengan default.</p>
+      <h3 class="mt2" style="font-size:19px">Isi yang wajib ada</h3>
+      <table class="t-sm mt0">
+        <tr><td style="width:44%"><b>Konteks</b></td><td class="dim">Produk, user, situasi pakai</td></tr>
+        <tr><td><b>Tugas layar</b></td><td class="dim">Satu kata kerja utama</td></tr>
+        <tr><td><b>Konten asli</b></td><td class="dim">Nama, data, endpoint</td></tr>
+        <tr><td><b>Arahan</b></td><td class="dim">DESIGN.md, kenop, referensi</td></tr>
+        <tr><td><b>Wajib dan larangan</b></td><td class="dim">State, performa, pola dihindari</td></tr>
+        <tr><td><b>Bentuk hasil</b></td><td class="dim">Beberapa arah, alasan</td></tr>
+      </table>
+    </div>
+    <div class="code">
+      <button class="copy">Salin</button>
+<pre>Ikuti DESIGN.md.
+
+Layar: dashboard setelah login.
+User: siswa SMK kelas 11, HP Android, kuota
+terbatas. Tugas utama: melanjutkan kursus
+yang terakhir dibuka.
+
+Konten asli: 6 kursus (Laravel 12, UI/UX, Ethical
+Hacking, Frontend, Git, UML). Data progres dari
+GET /api/me/progress (sudah ada, lihat tipe
+ProgressResponse).
+
+Referensi: pola "lanjutkan" di aplikasi belajar
+bahasa. Ambil kejelasan progresnya, bukan warnanya.
+
+Wajib:
+- satu tombol utama "Lanjutkan [nama kursus]"
+- keadaan kosong, memuat (skeleton), gagal, terisi
+- tulis design read satu kalimat sebelum kode
+- tanpa library animasi, gambar lazy load
+
+Buat 3 arah berbeda pada layout dan kepadatan.
+Untuk tiap arah: kapan paling cocok dan apa
+kekurangannya. Jangan pilihkan untukku.</pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Minta beberapa arah">
+  <div class="g-l grow">
+    <div>
+      <h2>Tiga arah yang benar-benar beda</h2>
+      <p class="lede">Tiga versi yang cuma beda warna aksen itu satu versi. Setiap arah harus bisa dijelaskan dengan satu sumbu yang berbeda.</p>
+      <ul class="dots mt2 s">
+        <li>Beri nama arah sesuai karakternya, bukan "opsi A, B, C"</li>
+        <li>Setiap arah tetap memakai konten asli dan interaksi yang berfungsi</li>
+        <li>Pilih berdasarkan user dan seberapa sering layar dipakai, bukan selera pribadi</li>
+        <li>Kalau belum pas, minta putaran baru di sekitar arah yang paling mendekati</li>
+      </ul>
+    </div>
+    <div>
+      <div class="tscroll">
+      <table>
+        <thead><tr><th style="width:18%">Arah</th><th style="width:30%">Sumbu</th><th>Paling cocok saat</th><th>Kekurangannya</th></tr></thead>
+        <tr><td><b>Tenang</b></td><td class="dim">Gerak minim, garis ketimbang bayangan</td><td>Layar dibuka setiap hari</td><td class="dim">Kurang berkesan</td></tr>
+        <tr><td><b>Padat</b></td><td class="dim">Data dulu, banyak informasi sekaligus</td><td>Guru memantau 30 siswa</td><td class="dim">Berat untuk pemula</td></tr>
+        <tr><td><b>Editorial</b></td><td class="dim">Tipografi besar, ruang lega</td><td>Halaman pengumuman atau hasil akhir</td><td class="dim">Makan ruang vertikal</td></tr>
+        <tr><td><b>Main</b></td><td class="dim">Satu momen animasi, warna lebih berani</td><td>Layar selesai kuis, onboarding</td><td class="dim">Cepat terasa ramai kalau diulang</td></tr>
+      </table>
+      </div>
+      <p class="hand mt2" style="transform:rotate(-1deg)">gelas yang bagus untuk kopi pagi belum tentu cocok untuk pesta</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Aturan override default">
+  <h2 class="wide">Aturan untuk melawan default</h2>
+  <p class="lede">Tulis ini di DESIGN.md atau prompt. Semua punya jalan pengecualian kalau brief memang meminta.</p>
+  <div class="g4 mt2">
+    <div class="lined">
+      <h3 style="font-size:20px">Tipografi</h3>
+      <ul class="dots s mt1">
+        <li>Font dipilih sadar, jangan yang itu-itu saja di setiap proyek</li>
+        <li>Maksimal dua keluarga yang jelas berbeda</li>
+        <li>Hierarki lewat ketebalan dan warna, bukan hanya ukuran raksasa</li>
+        <li>Serif hanya kalau karakter brand memang editorial</li>
+      </ul>
+    </div>
+    <div class="lined">
+      <h3 style="font-size:20px">Warna</h3>
+      <ul class="dots s mt1">
+        <li>Satu aksen, dikunci untuk seluruh halaman</li>
+        <li>Saturasi aksen dikurangi supaya menyatu dengan netral</li>
+        <li>Hindari hitam dan putih mentah untuk area luas</li>
+        <li>Mode gelap direncanakan, bukan dibalik otomatis</li>
+      </ul>
+    </div>
+    <div class="lined">
+      <h3 style="font-size:20px">Layout</h3>
+      <ul class="dots s mt1">
+        <li>Hero nggak selalu di tengah: coba kiri-kanan atau asimetris</li>
+        <li>Kartu hanya kalau ketinggian menunjukkan hierarki</li>
+        <li>Kelompokkan dengan jarak dan garis dulu</li>
+        <li>Radius dan shadow ikut level pentingnya</li>
+      </ul>
+    </div>
+    <div class="lined">
+      <h3 style="font-size:20px">Konten</h3>
+      <ul class="dots s mt1">
+        <li>Nama, angka, dan istilah yang wajar untuk konteks lokal</li>
+        <li>Nggak ada lorem ipsum atau tombol mati</li>
+        <li>Ikon dari satu set konsisten, bukan emoji</li>
+        <li>Gambar asli atau placeholder yang jujur, bukan dashboard palsu</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Langkah 6: kustom komponen">
+  <div class="g2 grow">
+    <div>
+      <h2>Langkah 6: komponen library jangan dipakai mentah</h2>
+      <p class="lede">shadcn, 21st.dev, Watermelon, dan Motion Primitives mempercepat kerja. Tapi kalau dipakai dalam tampilan bawaannya, produkmu terlihat seperti ribuan proyek lain yang pakai library yang sama.</p>
+      <div class="soft mt2">
+        <p class="s"><b>Habiskan keberanian di satu tempat.</b> Biarkan satu elemen jadi yang paling diingat, sisanya tenang dan disiplin. Sebelum kirim, lepas satu hiasan. Kalau hasilnya nggak terasa berkurang, berarti memang nggak perlu.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Yang diubah sebelum dipakai</h3>
+      <table class="t-sm mt1">
+        <tr><td style="width:34%"><b>Token warna</b></td><td class="dim">Sesuai DESIGN.md, termasuk hover, fokus, dan error</td></tr>
+        <tr><td><b>Radius</b></td><td class="dim">Beda antara wadah, tombol, dan chip</td></tr>
+        <tr><td><b>Font</b></td><td class="dim">Ganti font bawaan, atur ketebalan</td></tr>
+        <tr><td><b>Shadow</b></td><td class="dim">Diberi warna latar, dipakai hemat</td></tr>
+        <tr><td><b>Spacing</b></td><td class="dim">Ikut skala proyek, bukan bawaan komponen</td></tr>
+        <tr><td><b>Animasi</b></td><td class="dim">Durasi dan easing diseragamkan</td></tr>
+        <tr><td><b>Copy</b></td><td class="dim">Label bawaan bahasa Inggris diganti bahasa user</td></tr>
+        <tr><td><b>Dependensi</b></td><td class="dim">Cek ukuran paket, hapus yang nggak dipakai</td></tr>
+      </table>
+      <p class="hand mt1">review lagi besok pagi, detail yang kelewat biasanya langsung kelihatan</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Merancang motion">
+  <div class="g2 grow">
+    <div>
+      <h2>Motion: tanya empat hal sebelum menganimasikan</h2>
+      <div class="card mt2">
+        <table class="t-sm">
+          <tr><td style="width:36%"><b>1. Seberapa sering?</b></td><td class="dim">Ratusan kali sehari: tanpa animasi. Puluhan: sangat halus. Sesekali: standar. Jarang: boleh ada kejutan kecil.</td></tr>
+          <tr><td><b>2. Apa tujuannya?</b></td><td class="dim">Menunjukkan perubahan, memberi tanda ditekan, menjaga arah ruang, menjelaskan fitur. "Biar keren" bukan tujuan.</td></tr>
+          <tr><td><b>3. Easing apa?</b></td><td class="dim">Masuk dan keluar: ease-out. Berpindah di layar: ease-in-out. Hover warna: ease. Hindari ease-in untuk UI.</td></tr>
+          <tr><td><b>4. Berapa lama?</b></td><td class="dim">Tombol 100-160ms. Tooltip 125-200ms. Dropdown 150-250ms. Modal dan drawer 200-500ms.</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <p class="s dim">Dua kotak dengan durasi sama, 400ms. Mana yang terasa lebih responsif?</p>
+      <p class="xs mt1"><b>ease-in</b>: pelan di awal</p>
+      <div class="lane"><div class="puck" id="p1"></div></div>
+      <p class="xs mt1"><b>ease-out kustom</b>: cepat di awal</p>
+      <div class="lane"><div class="puck" id="p2" style="background:var(--ok)"></div></div>
+      <button class="b b-primary mt2" id="run-motion" style="background:var(--ink);color:var(--paper)">Jalankan</button>
+      <div class="soft mt2">
+        <p class="s">Ease-in terasa lamban karena gerakannya tertunda justru di momen user sedang memperhatikan. Easing bawaan CSS terlalu lemah, pakai kurva kustom seperti <code>cubic-bezier(0.23, 1, 0.32, 1)</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Desain yang nggak AI" data-title="Detail craft">
+  <h2 class="wide">Detail kecil yang bikin terasa dibuat dengan niat</h2>
+  <div class="g2 mt2" style="gap:44px">
+    <div class="card">
+      <table class="t-sm">
+        <thead><tr><th>Sebelum</th><th>Sesudah</th><th>Kenapa</th></tr></thead>
+        <tr><td><code>transition: all 300ms</code></td><td><code>transform 200ms ease-out</code></td><td class="dim">Sebut properti spesifik</td></tr>
+        <tr><td><code>scale(0)</code> saat muncul</td><td><code>scale(.95)</code> + opacity</td><td class="dim">Nggak ada benda yang muncul dari ketiadaan</td></tr>
+        <tr><td>Tombol diam saat ditekan</td><td><code>:active</code> <code>scale(.97)</code></td><td class="dim">Tanda bahwa aplikasi mendengar</td></tr>
+        <tr><td>Popover membesar dari tengah</td><td>Dari arah pemicunya</td><td class="dim">Menjaga hubungan ruang</td></tr>
+        <tr><td>Animasi <code>width</code>, <code>top</code></td><td><code>transform</code>, <code>opacity</code></td><td class="dim">Nggak memicu hitung ulang layout</td></tr>
+        <tr><td>Keyframe untuk toast</td><td>Transition</td><td class="dim">Bisa diinterupsi tanpa mulai dari nol</td></tr>
+        <tr><td>Tooltip selalu delay</td><td>Delay hanya yang pertama</td><td class="dim">Toolbar terasa lebih cepat</td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="s dim">Coba sendiri. Tekan dan tahan tombol, lalu buka menu.</p>
+      <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap">
+        <button class="b b-secondary" style="transition:none">Tanpa tanda ditekan</button>
+        <button class="b b-primary">Dengan tanda ditekan</button>
+      </div>
+      <div class="pop-demo mt2">
+        <button class="b b-secondary" id="pop-btn" aria-expanded="false" aria-controls="pop">Urutkan soal</button>
+        <div class="pop" id="pop" role="menu" style="transform-origin:top left">
+          <div style="padding:6px 4px">Terbaru</div><div style="padding:6px 4px">Paling sering salah</div><div style="padding:6px 4px">Belum dikerjakan</div>
+        </div>
+      </div>
+      <p class="hand ok" style="transform:rotate(-1deg)">menu tumbuh dari tombolnya, bukan dari tengah layar</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BAB 4 ============================ -->
+<section class="slide board" data-chap="Bab 4: Ringan dan cepat" data-title="Bab 4: Ringan dan cepat">
+  <div class="grow center-v">
+    <span class="chap-no">bab 4</span>
+    <h1 class="chap-title">Enak untuk user, ringan untuk server</h1>
+    <p class="lede">Ini bagian yang bikin fullstack developer beda dari sekadar "bisa bikin tampilan". Frontend yang baik menghemat waktu user dan beban server sekaligus.</p>
+    <ul class="chap-list">
+      <li>Performa yang dirasakan user</li><li>Aset: gambar, font, library</li>
+      <li>Strategi render</li><li>Mengambil data dengan hemat</li>
+      <li>Terasa cepat walau server lambat</li><li>Upload, form, dan animasi ringan</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Core Web Vitals">
+  <div class="g-l grow">
+    <div>
+      <h2>Performa adalah UX yang bisa diukur</h2>
+      <p class="lede">Frontend secantik apa pun gagal kalau lama muncul, telat merespons, atau layoutnya loncat saat mau diklik.</p>
+      <p class="s dim mt2">Ukur dengan Lighthouse atau PageSpeed Insights dalam mode HP. Lingkungan developer (laptop kencang, wifi kantor, cache penuh) hampir selalu terlalu optimis.</p>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h3>LCP</h3><span class="counter-big" style="font-size:40px">&le; 2,5 dtk</span></div>
+        <p class="s dim mt0">Konten terbesar di layar selesai muncul. Yang dirasakan user: "halamannya udah kebuka belum?"</p>
+      </div>
+      <div class="card mt1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h3>INP</h3><span class="counter-big" style="font-size:40px">&le; 200 ms</span></div>
+        <p class="s dim mt0">Jeda dari klik sampai layar berubah. Yang dirasakan: "tombolnya kepencet nggak sih?"</p>
+      </div>
+      <div class="card mt1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h3>CLS</h3><span class="counter-big" style="font-size:40px">&le; 0,1</span></div>
+        <p class="s dim mt0">Seberapa banyak layout bergeser. Yang dirasakan: "mau klik batal, malah kepencet bayar."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Aset yang bikin berat">
+  <h2 class="wide">Tersangka utama: aset yang nggak dijaga</h2>
+  <p class="lede" style="font-size:19px;max-width:80ch">Vibe coding cepat menambah dependensi dan aset. Jarang ada yang ingat menguranginya.</p>
+  <div class="g3 mt1">
+    <div class="lined">
+      <h3>Gambar</h3>
+      <ul class="dots pen xs mt1"><li>Hero 4MB langsung dari kamera atau generator gambar</li><li>Gambar tanpa ukuran, layout loncat saat dimuat</li></ul>
+      <ul class="dots ok xs mt1"><li>WebP atau AVIF, dikompres</li><li><code>srcset</code> dan <code>sizes</code> supaya HP dapat versi kecil</li><li><code>width</code> dan <code>height</code> selalu diisi</li><li><code>loading="lazy"</code> untuk yang di bawah layar, gambar hero justru diprioritaskan</li></ul>
+    </div>
+    <div class="lined">
+      <h3>Font</h3>
+      <ul class="dots pen xs mt1"><li>Enam ketebalan dimuat, yang dipakai dua</li><li>Tiga keluarga font untuk satu halaman</li></ul>
+      <ul class="dots ok xs mt1"><li>Maksimal dua keluarga, hanya ketebalan yang dipakai</li><li><code>font-display: swap</code> supaya teks langsung tampil</li><li>Font sistem untuk dashboard internal sudah sangat cukup</li></ul>
+    </div>
+    <div class="lined">
+      <h3>JavaScript</h3>
+      <ul class="dots pen xs mt1"><li>Import library animasi dan Three.js untuk satu efek kecil</li><li>Seluruh aplikasi dimuat di halaman login</li></ul>
+      <ul class="dots ok xs mt1"><li>Efek sederhana cukup CSS transition</li><li>Pecah bundle per halaman (lazy route, dynamic import)</li><li>Cek ukuran paket sebelum install, hapus yang nggak terpakai</li><li>Komponen berat dimuat saat dibutuhkan</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Strategi render">
+  <div class="g-r grow">
+    <div>
+      <h2 class="wide">Strategi render: siapa yang kerja, kapan</h2>
+      <p class="s dim mt1">Ilustrasi alur waktu dari request sampai halaman bisa dipakai.</p>
+      <div class="mt2">
+        <div class="lane-row"><b>SSG</b><div class="segs"><span class="cd" style="flex:1">CDN</span><span class="br" style="flex:1.2">tampil</span><span class="wt" style="flex:5"></span></div></div>
+        <div class="lane-row"><b>SSR</b><div class="segs"><span class="sv" style="flex:2.2">server render</span><span class="br" style="flex:1.4">tampil</span><span class="wt" style="flex:3.6"></span></div></div>
+        <div class="lane-row"><b>CSR</b><div class="segs"><span class="cd" style="flex:.9">HTML</span><span class="br" style="flex:2.3">unduh dan jalankan JS</span><span class="sv" style="flex:1.6">API</span><span class="br" style="flex:1">tampil</span><span class="wt" style="flex:1.4"></span></div></div>
+        <div class="lane-row"><b>ISR</b><div class="segs"><span class="cd" style="flex:1">cache</span><span class="br" style="flex:1.2">tampil</span><span class="sv" style="flex:2">perbarui berkala</span><span class="wt" style="flex:3.2"></span></div></div>
+      </div>
+      <div style="display:flex;gap:18px;margin-top:14px" class="xs dim">
+        <span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#0F3B31;vertical-align:-1px"></i> server bekerja</span>
+        <span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#6FB59A;vertical-align:-1px"></i> CDN</span>
+        <span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--marker);vertical-align:-1px"></i> browser</span>
+      </div>
+    </div>
+    <div class="card" style="align-self:start">
+      <table class="t-sm">
+        <tr><td style="width:24%"><b>SSG</b></td><td class="dim">Landing page, blog, materi, dokumentasi. Server hampir tanpa beban, paling cepat.</td></tr>
+        <tr><td><b>SSR</b></td><td class="dim">Konten personal atau sering berubah yang butuh SEO. Beban server naik per pengunjung, wajib pakai cache.</td></tr>
+        <tr><td><b>CSR</b></td><td class="dim">Dashboard setelah login. Server cukup melayani API, tapi jaga ukuran JS dan tampilkan skeleton.</td></tr>
+        <tr><td><b>ISR</b></td><td class="dim">Katalog, daftar kursus, leaderboard harian. Statis dengan pembaruan berkala.</td></tr>
+      </table>
+      <p class="hand mt1">satu aplikasi boleh campur: landing SSG, dashboard CSR</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Mengambil data dengan hemat">
+  <h2 class="wide">Frontend yang sopan ke server</h2>
+  <p class="lede" style="font-size:19px;max-width:80ch">Banyak server kewalahan bukan karena user-nya banyak, tapi karena frontend-nya boros request.</p>
+  <div class="tscroll mt2">
+  <table class="t-sm">
+    <thead><tr><th style="width:26%">Kebiasaan boros</th><th style="width:38%">Ganti dengan</th><th>Efek</th></tr></thead>
+    <tr><td class="dim">Ambil 5.000 baris sekaligus</td><td>Paginasi berbasis cursor, 20 item per halaman</td><td class="dim">Query ringan, render cepat</td></tr>
+    <tr><td class="dim">Satu request tiap huruf di kolom cari</td><td>Debounce 300ms, minimal 2 karakter, batalkan request lama</td><td class="dim">Request turun drastis</td></tr>
+    <tr><td class="dim">Daftar 20 item lalu 20 request detail</td><td>Satu endpoint yang mengembalikan field yang dibutuhkan</td><td class="dim">Hindari N+1 dari sisi frontend</td></tr>
+    <tr><td class="dim">Fetch ulang data yang sama di tiap komponen</td><td>Cache client (TanStack Query, SWR): deduplikasi dan stale-while-revalidate</td><td class="dim">Satu request untuk banyak pemakai</td></tr>
+    <tr><td class="dim">Polling tiap detik, tetap jalan saat tab ditutup</td><td>Interval wajar, berhenti saat tab tersembunyi, SSE atau WebSocket untuk yang benar-benar real-time</td><td class="dim">Beban latar hilang</td></tr>
+    <tr><td class="dim">Retry langsung tanpa jeda saat gagal</td><td>Backoff bertahap dengan jitter, dan idempotency key untuk POST</td><td class="dim">Server yang sedang sakit nggak makin dihajar</td></tr>
+    <tr><td class="dim">Upload file lewat server aplikasi</td><td>Kompres di browser, unggah langsung ke storage dengan presigned URL</td><td class="dim">Server bebas dari lalu lintas file</td></tr>
+    <tr><td class="dim">Aset tanpa aturan cache</td><td>Nama file ber-hash dengan cache panjang, <code>ETag</code> untuk respons publik</td><td class="dim">Kunjungan kedua hampir instan</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Demo debounce">
+  <div class="g2 grow">
+    <div>
+      <h2>Rasakan bedanya: debounce pada kolom cari</h2>
+      <p class="lede" style="font-size:19px">Ketik apa saja, misalnya "eloquent relationship". Hitung berapa request yang akan dikirim ke server.</p>
+      <label class="fl" for="deb-in" style="font-size:16px;color:var(--ink);margin-top:22px">Cari soal</label>
+      <input id="deb-in" class="fi" style="font-size:18px;padding:13px 14px" placeholder="Ketik kata kunci" autocomplete="off">
+      <div class="g2 mt2" style="gap:20px">
+        <div class="card"><p class="xs dim">Tanpa debounce</p><div class="counter-big mt0" id="deb-raw" style="color:var(--pen)">0</div><p class="xs dim mt0">request</p></div>
+        <div class="card"><p class="xs dim">Debounce 300ms, min 2 huruf</p><div class="counter-big mt0" id="deb-smart" style="color:var(--ok)">0</div><p class="xs dim mt0">request</p></div>
+      </div>
+      <button class="b b-secondary mt1" id="deb-reset" style="font-size:14px;padding:8px 12px">Ulangi</button>
+    </div>
+    <div class="code">
+      <button class="copy">Salin</button>
+<pre><span class="c">// Debounce + batalkan request lama</span>
+let timer;
+let controller;
+
+searchInput.addEventListener('input', (e) =&gt; {
+  clearTimeout(timer);
+  timer = setTimeout(() =&gt; search(e.target.value), 300);
+});
+
+async function search(raw) {
+  const q = raw.trim();
+  if (q.length &lt; 2) return;
+
+  controller?.abort();              <span class="c">// batalkan yang lama</span>
+  controller = new AbortController();
+
+  try {
+    const res = await fetch(
+      `/api/soal?q=${encodeURIComponent(q)}&amp;limit=20`,
+      { signal: controller.signal }
+    );
+    if (!res.ok) throw new Error(res.status);
+    renderResults(await res.json());
+  } catch (err) {
+    if (err.name !== 'AbortError') showSearchError();
+  }
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Terasa cepat walau server lambat">
+  <div class="g-l grow">
+    <div>
+      <h2>Terasa cepat, walau server butuh waktu</h2>
+      <ul class="dots mt2 s">
+        <li><b>Skeleton</b> menjaga bentuk layout, lebih tenang dari spinner di tengah layar</li>
+        <li><b>Optimistic update</b>: tampilkan hasil dulu, kembalikan kalau server menolak</li>
+        <li><b>Tampilkan cache dulu</b>, perbarui diam-diam di belakang</li>
+        <li><b>Prefetch</b> halaman berikutnya saat link di-hover atau terlihat</li>
+        <li><b>Streaming</b>: kirim bagian yang siap duluan</li>
+      </ul>
+      <p class="s dim mt2">Optimistic cocok untuk aksi ringan yang jarang gagal (favorit, centang, urutan). Jangan untuk pembayaran atau aksi yang nggak bisa dibatalkan.</p>
+    </div>
+    <div>
+      <p class="s dim">Server di demo ini sengaja butuh 1,2 detik.</p>
+      <label class="chk" style="margin-top:6px"><input type="checkbox" id="opt-fail"><span>Simulasikan server menolak</span></label>
+      <div class="g2 mt1" style="gap:20px">
+        <div class="spec">
+          <p style="font-weight:700">Menunggu server</p>
+          <p class="xs muted mt0">Tampilan berubah setelah respons datang.</p>
+          <button class="b b-secondary fav mt2" id="fav-wait" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Simpan soal</span></button>
+          <p class="xs muted mt1" id="fav-wait-msg" aria-live="polite">&nbsp;</p>
+        </div>
+        <div class="spec">
+          <p style="font-weight:700">Optimistic</p>
+          <p class="xs muted mt0">Langsung berubah, dikoreksi kalau gagal.</p>
+          <button class="b b-secondary fav mt2" id="fav-opt" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Simpan soal</span></button>
+          <p class="xs muted mt1" id="fav-opt-msg" aria-live="polite">&nbsp;</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Upload, form, dan animasi ringan">
+  <h2 class="wide">Upload, form, dan animasi yang nggak membebani</h2>
+  <div class="g3 mt3">
+    <div class="lined">
+      <h3>Upload</h3>
+      <ul class="dots s mt1">
+        <li>Cek tipe dan ukuran file di browser sebelum dikirim</li>
+        <li>Perkecil foto di browser (misalnya maks 1600px)</li>
+        <li>Tampilkan progres dan tombol batal</li>
+        <li>Unggah langsung ke storage lewat presigned URL</li>
+      </ul>
+    </div>
+    <div class="lined">
+      <h3>Form</h3>
+      <ul class="dots s mt1">
+        <li>Kunci tombol saat request berjalan</li>
+        <li>Idempotency key untuk transaksi, supaya klik dobel nggak jadi dua pesanan</li>
+        <li>Simpan draf di browser untuk form panjang</li>
+        <li>Pesan error dari server dipetakan ke field yang tepat</li>
+      </ul>
+    </div>
+    <div class="lined">
+      <h3>Animasi</h3>
+      <ul class="dots s mt1">
+        <li>Hanya <code>transform</code> dan <code>opacity</code></li>
+        <li><code>backdrop-filter</code> dan blur besar sangat berat di HP, pakai secukupnya</li>
+        <li>CSS transition untuk efek sederhana, library hanya untuk spring dan gesture</li>
+        <li>List panjang pakai virtualisasi, bukan animasi tiap item</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 4: Ringan dan cepat" data-title="Peringatan penting">
+  <h2 class="wide">Tiga cara frontend cantik tetap gagal</h2>
+  <div class="g3 mt3">
+    <div class="card" style="border-top:5px solid var(--pen)">
+      <h3>Berat</h3>
+      <p class="s mt1">Efek 3D dan animasi scroll yang mulus di laptop bisa butuh 8 detik di HP dua jutaan dengan sinyal naik turun. User menutup tab sebelum melihat efeknya.</p>
+      <p class="hand mt1">gelas kristal yang kelamaan diantar</p>
+    </div>
+    <div class="card" style="border-top:5px solid var(--pen)">
+      <h3>Membingungkan</h3>
+      <p class="s mt1">Navigasi tersembunyi atau urutan checkout yang beda dari biasanya bikin user awam tersesat, karena nggak sama dengan kebiasaan mereka di website lain.</p>
+      <p class="hand mt1">gelas pegangan ke dalam</p>
+    </div>
+    <div class="card" style="border-top:5px solid var(--pen)">
+      <h3>Rapuh</h3>
+      <p class="s mt1">Hanya bagus saat data lengkap. Pecah saat nama panjang, daftar kosong, API lambat, atau dibuka di layar 375 piksel.</p>
+      <p class="hand mt1">gelas yang retak kena air panas</p>
+    </div>
+  </div>
+  <p class="mt3" style="font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.02em">Urutan prioritas: bisa dipakai, lalu cepat, lalu konsisten, baru berkesan.</p>
+</section>
+
+<!-- ============================ BAB 5 ============================ -->
+<section class="slide board" data-chap="Bab 5: Audit dan praktik" data-title="Bab 5: Audit dan praktik">
+  <div class="grow center-v">
+    <span class="chap-no">bab 5</span>
+    <h1 class="chap-title">Audit, bedah, dan praktik</h1>
+    <p class="lede">Semua bab tadi dirangkum jadi checklist yang bisa dipakai sebelum setiap rilis, lalu langsung dicoba di platform nyata.</p>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 5: Audit dan praktik" data-title="Checklist sebelum kirim">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+    <h2 class="wide">Checklist sebelum kirim</h2>
+    <div style="display:flex;gap:12px;align-items:center"><span class="s dim" id="chk-count"></span><button class="b b-secondary" id="chk-reset" style="padding:8px 12px;font-size:14px">Kosongkan</button></div>
+  </div>
+  <div class="chk-grid" id="checklist">
+    <div>
+      <h3>Bisa dipakai</h3>
+      <label class="chk"><input type="checkbox"><span>Satu tugas utama per layar, satu tombol primary</span></label>
+      <label class="chk"><input type="checkbox"><span>Navigasi dan alur mengikuti kebiasaan umum</span></label>
+      <label class="chk"><input type="checkbox"><span>Keadaan kosong, memuat, gagal, berhasil ada</span></label>
+      <label class="chk"><input type="checkbox"><span>Form punya label, error jelas, isian nggak hilang</span></label>
+      <label class="chk"><input type="checkbox"><span>Copy pakai bahasa user dan konsisten</span></label>
+    </div>
+    <div>
+      <h3>Nggak terasa template</h3>
+      <label class="chk"><input type="checkbox"><span>Design read dan DESIGN.md sudah ditulis</span></label>
+      <label class="chk"><input type="checkbox"><span>Palet spesifik, satu aksen konsisten</span></label>
+      <label class="chk"><input type="checkbox"><span>Kartu, radius, shadow ikut hierarki</span></label>
+      <label class="chk"><input type="checkbox"><span>Nggak ada label kapital, titik tengah, panah otomatis, nomor palsu</span></label>
+      <label class="chk"><input type="checkbox"><span>Prompt serupa untuk produk lain akan menghasilkan desain berbeda</span></label>
+    </div>
+    <div>
+      <h3>Cepat untuk user</h3>
+      <label class="chk"><input type="checkbox"><span>Lighthouse mode HP: LCP, INP, CLS hijau</span></label>
+      <label class="chk"><input type="checkbox"><span>Gambar dikompres, diberi ukuran, lazy load</span></label>
+      <label class="chk"><input type="checkbox"><span>Library dicek ukurannya, bundle dipecah</span></label>
+      <label class="chk"><input type="checkbox"><span>Motion menjawab aksi, reduced motion dihormati</span></label>
+      <label class="chk"><input type="checkbox"><span>Dicoba di HP asli lebar 375px</span></label>
+    </div>
+    <div>
+      <h3>Ringan untuk server</h3>
+      <label class="chk"><input type="checkbox"><span>Paginasi dan batas jumlah data</span></label>
+      <label class="chk"><input type="checkbox"><span>Debounce dan pembatalan request</span></label>
+      <label class="chk"><input type="checkbox"><span>Cache client, tanpa request dobel</span></label>
+      <label class="chk"><input type="checkbox"><span>Polling berhenti saat tab tersembunyi</span></label>
+      <label class="chk"><input type="checkbox"><span>Retry dengan backoff, submit dobel dicegah</span></label>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 5: Audit dan praktik" data-title="Latihan bedah aplikasi">
+  <div class="g-l grow">
+    <div>
+      <h2>Latihan: bedah aplikasi AI pilihanmu</h2>
+      <p class="lede">Buka satu dashboard atau aplikasi berbasis AI yang kamu pakai sehari-hari, di HP dan laptop, lalu audit pakai semua yang sudah dibahas.</p>
+      <p class="s dim mt2">Tujuannya bukan mencari salah, tapi melatih mata membaca keputusan desain, lalu menuliskan perbaikan yang punya alasan.</p>
+    </div>
+    <div class="card">
+      <h3>Pertanyaan pemandu</h3>
+      <table class="t-sm mt1">
+        <tr><td style="width:24%"><b>Tugas</b></td><td class="dim">Apa tugas utama halaman itu, dan apakah mata langsung tertuju ke sana?</td></tr>
+        <tr><td><b>Hierarki</b></td><td class="dim">Kalau ada beberapa item sejenis (menu, kursus, produk), apakah tombol dan tampilannya sama semua? Harusnya beda nggak kalau salah satunya sudah ada progres atau statusnya?</td></tr>
+        <tr><td><b>Bahasa</b></td><td class="dim">Konsisten satu bahasa, atau campur aduk Inggris-Indonesia? Mana yang paling pas untuk audiensnya?</td></tr>
+        <tr><td><b>Pola AI</b></td><td class="dim">Temukan pola dari bab 2. Mana yang pilihan sadar, mana yang default?</td></tr>
+        <tr><td><b>State</b></td><td class="dim">Matikan internet di DevTools. Apa yang terlihat?</td></tr>
+        <tr><td><b>Performa</b></td><td class="dim">Berapa skor Lighthouse mode HP? Aset apa yang paling berat?</td></tr>
+        <tr><td><b>Request</b></td><td class="dim">Buka tab Network. Ada request dobel atau data yang diambil berlebihan?</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 5: Audit dan praktik" data-title="Tugas praktik">
+  <h2 class="wide">Tugas: satu layar, dua cara</h2>
+  <p class="lede">Pilih satu halaman dari platform kuis atau proyekmu sendiri.</p>
+  <div class="route" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stop"><div class="pin">1</div><h3 style="font-size:20px">Prompt kosong</h3><p class="xs">Generate dengan prompt satu kalimat. Simpan hasilnya.</p></div>
+    <div class="stop"><div class="pin">2</div><h3 style="font-size:20px">Riset dan read</h3><p class="xs">Jawab 6 pertanyaan riset, tulis design read, tentukan kenop.</p></div>
+    <div class="stop"><div class="pin">3</div><h3 style="font-size:20px">DESIGN.md</h3><p class="xs">Dari 3 referensi berbeda, taruh di rules agent-mu.</p></div>
+    <div class="stop"><div class="pin">4</div><h3 style="font-size:20px">Prompt terarah</h3><p class="xs">Minta 3 arah, pilih satu dengan alasan, rakit dan poles.</p></div>
+    <div class="stop"><div class="pin">5</div><h3 style="font-size:20px">Audit</h3><p class="xs">Checklist, Lighthouse mode HP, dan hitung request di tab Network.</p></div>
+  </div>
+  <div class="soft mt4">
+    <p class="s"><b>Dikumpulkan:</b> screenshot sebelum dan sesudah, DESIGN.md, design read, hasil checklist, skor Lighthouse, jumlah request sebelum dan sesudah, serta penjelasan 3 menit kenapa arah itu yang dipilih.</p>
+  </div>
+</section>
+
+<section class="slide board" data-chap="Penutup" data-title="Penutup">
+  <div class="grow center-v">
+    <p class="statement">Desain yang bagus bikin user nggak perlu mikir, server nggak perlu kerja keras, dan tetap terasa punya produkmu.</p>
+    <p class="lede mt3">AI mempercepat pembuatan. Konteks, riset, dan penilaian tetap tugas kita.</p>
+  </div>
+</section>
+
+  <div class="bar" id="bar">
+    <span class="chap" id="chap"></span>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <span class="num" id="num"></span>
+    <button id="ov-btn" aria-label="Daftar slide (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button>
+    <button id="prev" aria-label="Slide sebelumnya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button id="next" aria-label="Slide berikutnya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+
+  <div class="overview" id="overview" role="dialog" aria-label="Daftar slide">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 class="wide">Daftar slide</h2>
+      <button class="b b-secondary" id="ov-close">Tutup</button>
+    </div>
+    <div class="ov-grid" id="ov-grid"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const stage=$('stage'),slides=[...document.querySelectorAll('.slide')];
+  let idx=0;
+
+  function fit(){
+    const w=innerWidth,h=innerHeight,portrait=w<820&&h>w;
+    document.documentElement.classList.toggle('portrait',portrait);
+    if(portrait){stage.style.transform='none';return;}
+    const s=Math.min(w/1280,h/720)*.985;
+    stage.style.transform='translate(-50%,-50%) scale('+s+')';
+  }
+  addEventListener('resize',fit);fit();
+
+  function go(n,skipHash){
+    idx=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,i)=>{
+      s.classList.toggle('is-active',i===idx);
+      s.classList.toggle('is-past',i<idx);
+      if(i===idx)s.removeAttribute('inert');else s.setAttribute('inert','');
+    });
+    const cur=slides[idx];
+    $('chap').textContent=cur.dataset.chap||'';
+    $('num').textContent=(idx+1)+' / '+slides.length;
+    $('fill').style.width=((idx+1)/slides.length*100)+'%';
+    stage.classList.toggle('on-board',cur.classList.contains('board'));
+    document.querySelectorAll('#ov-grid button').forEach(b=>b.setAttribute('aria-current',+b.dataset.i===idx));
+    if(!skipHash){try{history.replaceState(null,'','#'+(idx+1));}catch(e){}}
+  }
+  $('prev').onclick=()=>go(idx-1);
+  $('next').onclick=()=>go(idx+1);
+
+  /* overview */
+  const ov=$('overview'),grid=$('ov-grid');
+  const groups={};
+  slides.forEach((s,i)=>{(groups[s.dataset.chap]=groups[s.dataset.chap]||[]).push([i,s.dataset.title])});
+  Object.entries(groups).forEach(([chap,items])=>{
+    const col=document.createElement('div');
+    col.innerHTML='<h4>'+chap+'</h4>';
+    items.forEach(([i,t])=>{const b=document.createElement('button');b.dataset.i=i;b.textContent=(i+1)+'. '+t;b.onclick=()=>{go(i);toggleOv(false)};col.appendChild(b)});
+    grid.appendChild(col);
+  });
+  function toggleOv(open){ov.classList.toggle('open',open);if(open){const c=grid.querySelector('[aria-current="true"]');c&&c.focus();}}
+  $('ov-btn').onclick=()=>toggleOv(!ov.classList.contains('open'));
+  $('ov-close').onclick=()=>toggleOv(false);
+
+  addEventListener('keydown',e=>{
+    const t=e.target;
+    if(t.closest&&t.closest('input,textarea,select'))return;
+    if(e.key==='g'||e.key==='G'){toggleOv(!ov.classList.contains('open'));return;}
+    if(e.key==='Escape'){toggleOv(false);return;}
+    if(ov.classList.contains('open'))return;
+    if(['ArrowRight','PageDown'].includes(e.key)||(e.key===' '&&t.tagName!=='BUTTON')){e.preventDefault();go(idx+1);}
+    else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
+    else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+  });
+  let sx=null,sy=null;
+  stage.addEventListener('touchstart',e=>{if(e.target.closest('input,pre,.tscroll'))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  stage.addEventListener('touchend',e=>{
+    if(sx===null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)go(idx+(dx<0?1:-1));sx=null;
+  });
+  let h=NaN;try{h=parseInt(location.hash.slice(1),10);}catch(e){}
+  go(isNaN(h)?0:h-1,true);
+
+  function seg(attr,cb){
+    const btns=[...document.querySelectorAll('['+attr+']')];
+    btns.forEach(b=>b.addEventListener('click',()=>{btns.forEach(x=>x.setAttribute('aria-pressed',x===b));cb(b.getAttribute(attr));}));
+  }
+
+  /* states */
+  const rows=[['Routing dan controller','Nilai 88'],['Eloquent relationship','7 dari 12'],['Form request','Belum mulai'],['Middleware dan auth','Belum mulai']];
+  const list=r=>r.map(x=>'<div class="qrow"><span>'+x[0]+'</span><span class="tagx">'+x[1]+'</span></div>').join('');
+  const views={
+    full:['Tampilan saat data lengkap. Kalau nggak diminta, biasanya cuma ini yang dibuat AI.','<p style="font-weight:700;font-size:18px">Kuis Laravel 12</p><div style="margin-top:8px">'+list(rows)+'</div>'],
+    empty:['Layar kosong adalah ajakan bertindak: jelaskan kenapa kosong dan apa langkah berikutnya.','<div style="height:100%;display:flex;flex-direction:column;justify-content:center"><p style="font-weight:700;font-size:20px">Belum ada kuis di kelas ini</p><p class="muted" style="font-size:15px;margin-top:6px">Kuis muncul setelah guru menerbitkannya. Sambil menunggu, kamu bisa baca materinya dulu.</p><div><button class="b b-primary" style="margin-top:16px">Buka materi Laravel</button></div></div>'],
+    loading:['Skeleton menjaga bentuk layout supaya nggak loncat saat data datang.','<div class="skel" style="width:45%;height:20px"></div><div style="margin-top:14px">'+[1,2,3,4].map(()=>'<div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #EEF0F4"><div class="skel" style="width:55%"></div><div class="skel" style="width:18%"></div></div>').join('')+'</div>'],
+    error:['Sebutkan apa yang gagal, pastikan data user aman, dan beri jalan keluar.','<div style="height:100%;display:flex;flex-direction:column;justify-content:center"><p style="font-weight:700;font-size:20px;color:#C23321">Daftar kuis gagal dimuat</p><p class="muted" style="font-size:15px;margin-top:6px">Koneksi terputus saat mengambil data. Jawaban yang sudah dikirim tetap tersimpan.</p><div style="display:flex;gap:10px;margin-top:16px"><button class="b b-primary">Coba lagi</button><button class="b b-secondary">Lihat versi tersimpan</button></div></div>'],
+    success:['Konfirmasi memakai nama aksi yang sama dengan tombolnya, lalu tunjukkan langkah berikutnya.','<div class="toastx"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Jawaban soal 7 tersimpan</div><div style="margin-top:8px">'+list(rows.slice(0,3))+'</div><button class="b b-primary" style="margin-top:12px">Lanjut ke soal 8</button>']
+  };
+  const setState=v=>{$('state-note').textContent=views[v][0];$('state-box').innerHTML=views[v][1];};
+  seg('data-state',setState);setState('full');
+
+  /* mock toggle */
+  const notes=$('mock-notes'),noteAi=notes.innerHTML;
+  const noteReal='<li>Judul menyebut tugas nyata siswa</li><li>Konten asli: kursus, soal ke-7, nilai</li><li>Satu tombol utama, satu pendamping</li><li>Angka organik, bukan 10K+</li><li>Tanpa label hiasan, titik tengah, panah</li><li>Hanya bisa dipakai untuk produk ini</li>';
+  seg('data-mock',v=>{const r=v==='real';$('mock-ai').hidden=r;$('mock-real').hidden=!r;notes.innerHTML=r?noteReal:noteAi;notes.classList.toggle('pen',!r);notes.classList.toggle('ok',r);$('mock-title').textContent=r?'Yang bikin terasa disengaja':'Yang bikin kelihatan template';});
+
+  /* knobs */
+  const kv=$('k-var'),km=$('k-mot'),kd=$('k-den');
+  const items=['Routing','Eloquent','Validasi','Middleware','Queue','Testing','API Resource','Cache','Event','Storage'];
+  let bounceTimer;
+  function knobs(){
+    const v=+kv.value,m=+km.value,d=+kd.value;
+    $('k-var-v').textContent=v;$('k-mot-v').textContent=m;$('k-den-v').textContent=d;
+    const head=$('k-head'),title=$('k-title'),it=$('k-items'),prev=$('kprev');
+    head.style.textAlign=v<=3?'center':'left';
+    head.style.marginLeft=v>=8?'18%':'0';
+    title.style.fontSize=(v<=3?32:v>=8?46:38)-(d>=7?8:0)+'px';
+    $('k-sub').style.margin=v<=3?'10px auto 0':'10px 0 0';
+    $('k-cta-row').style.justifyContent=v<=3?'center':'flex-start';
+    const count=Math.round(2+d*.8);
+    const cols=d<=3?2:d<=6?3:5;
+    it.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    it.style.gap=(d<=3?16:d<=6?10:6)+'px';
+    prev.style.padding=(d<=3?34:d<=6?26:16)+'px';
+    it.innerHTML=items.slice(0,count).map((n,i)=>{
+      const tilt=v>=8?'transform:rotate('+((i%2?1:-1)*(v-7)*.6)+'deg);':'';
+      const span=v>=6&&i===0?'grid-column:span 2;':'';
+      return '<div class="kit" style="'+tilt+span+'"><b>'+n+'</b><div style="color:#5A6560;margin-top:2px">'+(i*3+4)+' soal</div></div>';
+    }).join('');
+    $('k-motion').textContent=m<=2?'Tanpa animasi':m<=5?'Transisi halus saat ditekan':m<=8?'Momen animasi saat hasil keluar':'Animasi scroll sinematik (berat)';
+    const btn=$('k-btn');btn.style.transition='transform '+(m<=2?0:120+m*25)+'ms cubic-bezier(0.23,1,0.32,1)';
+    clearTimeout(bounceTimer);
+    if(m>2&&!matchMedia('(prefers-reduced-motion: reduce)').matches){btn.style.transform='scale(.94)';bounceTimer=setTimeout(()=>btn.style.transform='none',80+m*20);}
+  }
+  [kv,km,kd].forEach(x=>x.addEventListener('input',knobs));knobs();
+
+  /* motion race */
+  const p1=$('p1'),p2=$('p2');
+  p1.style.transition='transform 400ms cubic-bezier(0.55,0,1,0.45)';
+  p2.style.transition='transform 400ms cubic-bezier(0.23,1,0.32,1)';
+  $('run-motion').onclick=()=>{p1.classList.toggle('go');p2.classList.toggle('go');};
+
+  /* popover */
+  const pop=$('pop'),pb=$('pop-btn');
+  pb.onclick=()=>{const o=!pop.classList.contains('show');pop.classList.toggle('show',o);pb.setAttribute('aria-expanded',o);};
+
+  /* debounce */
+  const di=$('deb-in');let raw=0,smart=0,dt;
+  di.addEventListener('input',()=>{
+    raw++;$('deb-raw').textContent=raw;
+    clearTimeout(dt);dt=setTimeout(()=>{if(di.value.trim().length>=2){smart++;$('deb-smart').textContent=smart;}},300);
+  });
+  $('deb-reset').onclick=()=>{raw=0;smart=0;di.value='';$('deb-raw').textContent=0;$('deb-smart').textContent=0;di.focus();};
+
+  /* optimistic */
+  const fail=$('opt-fail');
+  const server=()=>new Promise((res,rej)=>setTimeout(()=>fail.checked?rej():res(),1200));
+  function setFav(btn,on){btn.setAttribute('aria-pressed',on);btn.querySelector('span').textContent=on?'Tersimpan':'Simpan soal';}
+  const fw=$('fav-wait'),fo=$('fav-opt');
+  fw.onclick=async()=>{
+    if(fw.dataset.busy)return;fw.dataset.busy=1;
+    const target=fw.getAttribute('aria-pressed')!=='true';
+    fw.querySelector('span').innerHTML='<i class="spin dark" style="display:inline-block;vertical-align:-2px"></i>';$('fav-wait-msg').innerHTML='&nbsp;';
+    try{await server();setFav(fw,target);}catch(e){setFav(fw,!target);$('fav-wait-msg').textContent='Gagal menyimpan. Coba lagi.';}
+    delete fw.dataset.busy;
+  };
+  fo.onclick=async()=>{
+    const target=fo.getAttribute('aria-pressed')!=='true';
+    setFav(fo,target);$('fav-opt-msg').innerHTML='&nbsp;';
+    try{await server();}catch(e){setFav(fo,!target);$('fav-opt-msg').textContent='Gagal menyimpan, dikembalikan.';}
+  };
+
+  /* copy */
+  document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(b.nextElementSibling.innerText);b.textContent='Tersalin';}catch(e){b.textContent='Salin manual';}
+    setTimeout(()=>b.textContent='Salin',1600);
+  }));
+
+  /* checklist */
+  const boxes=[...document.querySelectorAll('#checklist input')],KEY='uiux-fullstack-checklist';
+  try{const s=JSON.parse(localStorage.getItem(KEY)||'[]');boxes.forEach((b,i)=>b.checked=!!s[i]);}catch(e){}
+  function upd(){$('chk-count').textContent=boxes.filter(b=>b.checked).length+' dari '+boxes.length+' beres';try{localStorage.setItem(KEY,JSON.stringify(boxes.map(b=>b.checked)));}catch(e){}}
+  boxes.forEach(b=>b.addEventListener('change',upd));$('chk-reset').onclick=()=>{boxes.forEach(b=>b.checked=false);upd();};upd();
+})();
+</script>
+</body>
+</html>
