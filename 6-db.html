@@ -124,6 +124,7 @@ td{border-bottom:1px solid var(--rule)}
 tr:last-child td{border-bottom:0}
 td.dim{color:var(--ink-2)}
 .t-sm th,.t-sm td{font-size:14px;padding:6px 9px}
+.t-xs th,.t-xs td{font-size:12.5px;padding:3px 8px}
 .h-md{font-size:38px}
 
 pre{font-family:var(--mono);font-size:12.6px;line-height:1.5;background:#0B1F1A;color:#D8E8E1;border-radius:16px;padding:16px 18px;overflow:auto;white-space:pre-wrap;max-height:520px}
@@ -254,6 +255,35 @@ input[type=range]{width:100%;accent-color:var(--board);margin-top:8px}
 .chk input:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
 .chk input:checked+span{color:var(--ink-3);text-decoration:line-through}
 
+
+/* ===== kotak materi baku ===== */
+.def{border-left:4px solid var(--ink);background:var(--card);border-radius:0 14px 14px 0;padding:11px 16px;box-shadow:0 8px 20px -16px rgba(15,59,49,.5)}
+.def .lbl{display:inline-block;font-family:var(--display);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:2px 8px;border-radius:5px;margin-bottom:6px}
+.def p,.def li{font-size:14.5px;line-height:1.42}
+.def dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0}
+.def dt{font-weight:700;font-size:14px;white-space:nowrap}
+.def dd{margin:0;font-size:14px;line-height:1.4;color:var(--ink-2)}
+.board .def{background:var(--board-2);border-color:var(--marker)}
+.board .def .lbl{background:var(--marker);color:#121614}
+
+/* ===== tabel normalisasi: warna per peran kolom ===== */
+.nf th,.nf td{font-size:12.5px;padding:4px 8px;font-family:var(--mono)}
+.nf th{font-family:var(--mono);font-size:11.5px}
+.nf .k{background:var(--ink);color:var(--paper)}
+.nf td.k{background:var(--tint);color:var(--ink);font-weight:700}
+.nf .bad{background:var(--pen-soft);color:var(--pen)}
+.nf .ok{background:var(--ok-soft);color:var(--ok)}
+.nf caption{caption-side:top;text-align:left;font-family:var(--mono);font-weight:700;font-size:13px;padding:0 0 5px}
+.ixt td,.ixt th{padding:2px 8px;font-size:12px}
+.nfrow{display:grid;grid-template-columns:1fr 40px 1fr;gap:10px;align-items:center}
+.nfarrow{font-family:var(--display);font-size:30px;font-weight:800;text-align:center;color:var(--ink-3)}
+.dep{font-family:var(--mono);font-size:13px;line-height:1.9}
+.dep .y{color:var(--ok);font-weight:700}
+.dep .n{color:var(--pen);font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+@container (max-width:760px){.nfrow{grid-template-columns:1fr}.nfarrow{transform:rotate(90deg)}}
+
 /* ===== portrait mobile ===== */
 html.portrait .stage{left:0;top:0;width:100vw;height:100dvh;transform:none!important;border-radius:0}
 html.portrait .slide{padding:calc(26px + env(safe-area-inset-top,0px)) 20px calc(96px + env(safe-area-inset-bottom,0px));overflow-y:auto}
@@ -350,7 +380,7 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
   <div class="grow center-v">
     <span class="chap-no">bab 1</span>
     <h1 class="chap-title">Dari struk ke tabel</h1>
-    <p class="lede">Semua sistem dimulai dari satu file Excel yang makin lama makin nggak masuk akal. Bab ini soal kenapa Excel itu pecah, dan pecahnya jadi apa.</p>
+    <p class="lede">Semua sistem dimulai dari satu file Excel yang makin lama makin nggak masuk akal. Bab ini soal kenapa desain satu-tabel itu harus dipecah, dan pecahannya jadi entitas, kolom, serta kunci yang punya nama masing-masing.</p>
     <ul class="chap-list">
       <li>Penyakit satu tabel raksasa</li><li>Entitas, baris, kolom</li>
       <li>Tipe data yang bikin rugi uang</li><li>Primary key dan foreign key</li>
@@ -359,24 +389,27 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
 </section>
 
 <section class="slide" data-chap="Bab 1: Dari struk ke tabel" data-title="Satu tabel raksasa">
-  <h2 class="wide">Semua orang mulai dari sini, dan semua orang kena masalah yang sama</h2>
-  <p class="lede">Satu sheet, satu baris per item terjual. Kelihatannya cukup, sampai kedainya rame.</p>
-  <div class="card mt2 tscroll">
-    <table class="t-sm">
+  <h2 class="wide" style="font-size:34px">Semua orang mulai dari satu tabel datar yang mencampur semuanya</h2>
+  <p class="lede" style="font-size:17px;margin-top:8px">Ini yang disebut <b>flat table</b>: satu sheet, satu baris per item terjual, belum dipisah jadi entitas-entitas kecil. Kelihatannya cukup, sampai kedainya rame.</p>
+  <div class="card mt1 tscroll" style="padding:12px 16px">
+    <table class="t-xs">
       <tr><th>tanggal</th><th>pelanggan</th><th>no_hp</th><th>menu</th><th>harga</th><th>qty</th><th>kasir</th></tr>
-      <tr><td>01/09</td><td>Rani</td><td>0812-1111</td><td>Kopi susu</td><td>22.000</td><td>2</td><td>Dimas</td></tr>
-      <tr><td>01/09</td><td>Rani</td><td>0812-1111</td><td>Americano</td><td>22.000</td><td>1</td><td>Dimas</td></tr>
-      <tr><td>01/09</td><td>Rani</td><td>0812-1111</td><td>Roti bakar</td><td>18.000</td><td>1</td><td>Dimas</td></tr>
+      <tr><td>01/09</td><td>Rani</td><td style="background:var(--pen-soft);color:var(--pen)">0812-1111</td><td>Kopi susu</td><td>22.000</td><td>2</td><td>Dimas</td></tr>
+      <tr><td>01/09</td><td>Rani</td><td style="background:var(--pen-soft);color:var(--pen)">0812-1111</td><td>Americano</td><td>22.000</td><td>1</td><td>Dimas</td></tr>
+      <tr><td>01/09</td><td>Rani</td><td style="background:var(--pen-soft);color:var(--pen)">0812-1111</td><td>Roti bakar</td><td>18.000</td><td>1</td><td>Dimas</td></tr>
       <tr><td>02/09</td><td>Bagas</td><td>0813-2222</td><td>Kopi susu</td><td>22.000</td><td>1</td><td>Sinta</td></tr>
-      <tr><td>02/09</td><td>Rani</td><td>0812-1111</td><td>Kopi susu</td><td>22.000</td><td>3</td><td>Sinta</td></tr>
+      <tr><td>02/09</td><td>Rani</td><td style="background:var(--pen-soft);color:var(--pen)">0812-1111</td><td>Kopi susu</td><td>22.000</td><td>3</td><td>Sinta</td></tr>
     </table>
   </div>
-  <div class="g3 mt3">
-    <div class="lined"><h3>Nomor Rani ganti</h3><p class="s dim mt0">Harus diedit di semua baris miliknya. Kelewat satu, datanya bercabang dan dua-duanya kelihatan benar.</p></div>
-    <div class="lined"><h3>Menu baru belum laku</h3><p class="s dim mt0">Matcha sudah ada di etalase, tapi nggak bisa disimpan. Menu cuma eksis kalau ada yang beli.</p></div>
-    <div class="lined"><h3>Pesanan dihapus</h3><p class="s dim mt0">Hapus transaksi terakhir roti bakar, dan roti bakar hilang dari sistem. Data ikut mati.</p></div>
+  <div class="g3 mt1" style="gap:14px">
+    <div class="lined" style="padding-top:8px"><span class="chip bad" style="font-size:11.5px">Anomali update</span><h3 class="mt0" style="font-size:17px">Nomor Rani ganti</h3><p class="s dim mt0" style="font-size:14px;line-height:1.38">Nomor yang sama tersimpan di 4 baris (merah). Kelewat satu, datanya bercabang.</p></div>
+    <div class="lined" style="padding-top:8px"><span class="chip bad" style="font-size:11.5px">Anomali insert</span><h3 class="mt0" style="font-size:17px">Menu baru belum laku</h3><p class="s dim mt0" style="font-size:14px;line-height:1.38">Matcha tidak bisa dicatat karena setiap baris wajib berupa penjualan.</p></div>
+    <div class="lined" style="padding-top:8px"><span class="chip bad" style="font-size:11.5px">Anomali delete</span><h3 class="mt0" style="font-size:17px">Pesanan dihapus</h3><p class="s dim mt0" style="font-size:14px;line-height:1.38">Hapus satu-satunya penjualan roti bakar, info menunya ikut hilang.</p></div>
   </div>
-  <p class="hand mt3" style="transform:rotate(-1deg);display:inline-block">tiga penyakit ini namanya anomali update, insert, dan delete</p>
+  <div class="def mt2">
+    <span class="lbl">Istilah baku</span>
+    <p><b>Redundansi</b> adalah fakta yang sama tersimpan di lebih dari satu tempat. <b>Anomali data</b> adalah efek sampingnya: menambah, mengubah, atau menghapus satu fakta memaksa perubahan di banyak baris, atau justru menghilangkan fakta lain. Obatnya adalah memecah tabel ini menjadi beberapa entitas, dan itulah isi seluruh materi ini.</p>
+  </div>
 </section>
 
 <section class="slide" data-chap="Bab 1: Dari struk ke tabel" data-title="Istilah, versi kedai kopi">
@@ -429,25 +462,25 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
 
 <section class="slide" data-chap="Bab 1: Dari struk ke tabel" data-title="Primary key">
   <h2 class="wide">Primary key jangan sesuatu yang bisa berubah</h2>
-  <p class="lede">Nomor HP, email, dan NIK semuanya terasa unik. Masalahnya semuanya bisa diganti, salah ketik, atau dipakai ulang orang lain. Kalau seluruh tabel lain menunjuk ke situ, satu perubahan menjalar ke mana-mana.</p>
-  <div class="g3 mt3">
-    <div class="card">
+  <p class="lede" style="font-size:19px">Nomor HP, email, dan NIK terasa unik, tapi bisa diganti, salah ketik, atau dipakai ulang. Kalau seluruh tabel lain menunjuk ke situ, satu perubahan menjalar ke mana-mana.</p>
+  <div class="g3 mt2">
+    <div class="card" style="padding:18px 20px">
       <span class="chip bad">Berisiko</span>
-      <h3 class="mt1">Kunci bisnis</h3>
-      <p class="s dim mt1">Email, nomor HP, kode menu tulisan tangan. Bermakna untuk manusia, rapuh untuk sistem.</p>
+      <h3 class="mt1">Natural key</h3>
+      <p class="s dim mt1">Kunci yang diambil dari data dunia nyata: email, nomor HP, NIK. Bermakna untuk manusia, rapuh untuk sistem.</p>
     </div>
-    <div class="card">
+    <div class="card" style="padding:18px 20px">
       <span class="chip good">Aman untuk mulai</span>
-      <h3 class="mt1">Angka urut</h3>
-      <p class="s dim mt1">Kecil, cepat, urut rapi di index. Kelemahannya: pesaing bisa tahu kamu sehari dapat berapa pesanan dari nomor struk.</p>
+      <h3 class="mt1">Surrogate key: angka urut</h3>
+      <p class="s dim mt1">Kunci buatan tanpa makna bisnis (<code>AUTO_INCREMENT</code>). Kecil dan cepat. Kelemahannya: nomornya bisa ditebak dan membocorkan volume pesanan.</p>
     </div>
-    <div class="card">
+    <div class="card" style="padding:18px 20px">
       <span class="chip neutral">Kalau perlu</span>
-      <h3 class="mt1">UUID / ULID</h3>
-      <p class="s dim mt1">Aman dari tebakan dan bisa dibuat sebelum masuk server. Lebih berat, dan UUID acak bikin index loncat-loncat. ULID masih urut waktu.</p>
+      <h3 class="mt1">Surrogate key: UUID / ULID</h3>
+      <p class="s dim mt1">Kode acak 128-bit, tidak bisa ditebak. UUID murni acak sehingga index tersebar; ULID diawali cap waktu sehingga tetap urut.</p>
     </div>
   </div>
-  <div class="soft mt3">
+  <div class="soft mt2" style="padding:14px 18px">
     <p class="s"><b>Pola yang biasa dipakai:</b> <code>id</code> angka urut untuk relasi antar tabel di dalam, plus satu kolom kode yang dilihat pelanggan seperti <code>A-2291</code> dengan aturan <code>UNIQUE</code>. Yang di dalam untuk mesin, yang di luar untuk manusia.</p>
   </div>
 </section>
@@ -460,7 +493,7 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
       <ul class="dots mt3 s">
         <li><b>Aturan praktis:</b> foreign key selalu tinggal di sisi "banyak"</li>
         <li>Kalau ditaruh di sisi "satu", kamu terpaksa isi <code>pesanan_1</code>, <code>pesanan_2</code>, <code>pesanan_3</code>, dan pasti kurang</li>
-        <li>Deklarasikan sungguhan pakai <code>REFERENCES</code>, bukan cuma kesepakatan lisan di tim. Database yang menolak data nyasar, bukan ingatan developer</li>
+        <li>Deklarasikan sungguhan pakai <code>REFERENCES</code>. Dengan begitu database menjaga <b>referential integrity</b> (integritas referensial): setiap <code>customer_id</code> dijamin menunjuk pelanggan yang benar-benar ada, dan nilai nyasar ditolak</li>
       </ul>
     </div>
     <div>
@@ -524,14 +557,14 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
   <div class="g2 grow ai-c">
     <div>
       <h2 class="h-md">Satu pesanan berisi banyak menu. Satu menu ada di banyak pesanan.</h2>
-      <p class="lede">Coba paksa langsung, dan kamu cuma punya dua pilihan yang dua-duanya buntu.</p>
-      <div class="card mt3">
+      <p class="lede" style="font-size:17px">Coba paksa langsung, dua pilihan yang ada dua-duanya buntu. Jalan keluarnya disebut <b>junction table</b> / <b>tabel pivot</b>.</p>
+      <div class="card mt2" style="padding:16px 18px">
         <span class="chip bad">Cara 1</span>
-        <p class="s mt1">Kolom <code>menu_1</code>, <code>menu_2</code>, <code>menu_3</code> di tabel pesanan. Ada yang pesan empat item, sistem menyerah.</p>
+        <p class="s mt1" style="font-size:15.5px;line-height:1.4">Kolom <code>menu_1</code>, <code>menu_2</code>, <code>menu_3</code> di tabel pesanan. Ada yang pesan empat item, sistem menyerah.</p>
       </div>
-      <div class="card mt2">
+      <div class="card mt1" style="padding:16px 18px">
         <span class="chip bad">Cara 2</span>
-        <p class="s mt1">Satu kolom <code>menu</code> berisi <code>"kopi susu, americano, roti"</code>. Sekarang coba jawab: bulan ini kopi susu terjual berapa gelas. Kamu harus memotong teks, dan tiap typo jadi menu baru.</p>
+        <p class="s mt1" style="font-size:15.5px;line-height:1.4">Satu kolom <code>menu</code> berisi <code>"kopi susu, americano, roti"</code>. Coba jawab: bulan ini kopi susu terjual berapa gelas? Harus memotong teks, dan tiap typo jadi menu baru.</p>
       </div>
     </div>
     <div>
@@ -556,7 +589,7 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
           </div>
         </div>
       </div>
-      <p class="hand mt3" style="transform:rotate(-1deg);display:inline-block">N:M selalu pecah jadi dua 1:N</p>
+      <p class="hand mt2" style="transform:rotate(-1deg);display:inline-block">N:M selalu pecah jadi dua 1:N</p>
     </div>
   </div>
 </section>
@@ -565,7 +598,7 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
     <div>
       <h2 class="wide">Begitu tabel penghubung punya isi sendiri, dia bukan penghubung lagi</h2>
-      <p class="lede" style="font-size:19px">Pertanyaan kasir yang bikin pivot naik pangkat: "dua gelasnya dicatat di mana?"</p>
+      <p class="lede" style="font-size:17px">Tabel pivot yang cuma berisi dua FK hanya mencatat "A berhubungan dengan B". Begitu <i>hubungan itu sendiri</i> punya data, misalnya jumlah gelas, tabel itu disebut <b>entitas asosiatif</b> (associative entity) dan diperlakukan sebagai tabel utuh.</p>
     </div>
     <div class="seg" role="group" aria-label="Bentuk pivot">
       <button data-piv="polos" aria-pressed="true">Pivot polos</button>
@@ -586,7 +619,7 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
   <div class="g-l grow ai-c">
     <div>
       <h2 class="h-md">Struk bulan lalu nggak boleh ikut berubah waktu harga naik</h2>
-      <p class="lede">Ini alasan paling jelas kenapa menyimpan ulang data itu kadang justru keputusan yang benar.</p>
+      <p class="lede" style="font-size:18px">Ini yang disebut <b>snapshot</b>: menyalin nilai pada satu titik waktu, bukan menyambung ke sumber yang bisa berubah.</p>
       <p class="s mt2">Kalau harga diambil dengan menyambung ke tabel menu saat struk dicetak ulang, struk lama otomatis ikut harga hari ini. Pembukuan jadi salah, dan pelanggan yang komplain benar.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px">
         <button class="b b-primary" id="price-btn">Naikkan harga kopi susu jadi 26.000</button>
@@ -637,9 +670,9 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
       </div>
       <p class="hand mt3" style="transform:rotate(-1deg);display:inline-block">kolom yang boleh kosong butuh LEFT JOIN</p>
     </div>
-    <div class="card">
-      <h3>Pesanan hari ini: 5 baris</h3>
-      <table class="t-sm mt1">
+    <div class="card" style="padding:18px 20px">
+      <h3 style="font-size:18px">Pesanan hari ini: 5 baris</h3>
+      <table class="t-xs mt1">
         <tr><th>code</th><th>customer_id</th><th>total</th></tr>
         <tr><td>A-2291</td><td>7</td><td>84.000</td></tr>
         <tr><td>A-2292</td><td class="dim" style="color:var(--pen)">NULL</td><td>22.000</td></tr>
@@ -647,9 +680,12 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
         <tr><td>A-2294</td><td class="dim" style="color:var(--pen)">NULL</td><td>66.000</td></tr>
         <tr><td>A-2295</td><td>12</td><td>18.000</td></tr>
       </table>
-      <div class="g2 mt3">
-        <div class="lined"><h3 style="font-size:18px">INNER JOIN</h3><p class="s mt0"><b>146.000</b></p><p class="xs dim">3 pesanan. Dua hilang.</p></div>
-        <div class="lined" style="border-color:var(--ok)"><h3 style="font-size:18px">LEFT JOIN</h3><p class="s mt0"><b>230.000</b></p><p class="xs dim">5 pesanan. Cocok dengan laci.</p></div>
+      <div class="g2 mt2">
+        <div class="lined" style="padding-top:8px"><h3 style="font-size:16px">INNER JOIN</h3><p class="s mt0"><b>146.000</b></p><p class="xs dim">3 pesanan. Dua hilang.</p></div>
+        <div class="lined" style="border-color:var(--ok);padding-top:8px"><h3 style="font-size:16px">LEFT JOIN</h3><p class="s mt0"><b>230.000</b></p><p class="xs dim">5 pesanan. Cocok dengan laci.</p></div>
+      </div>
+      <div class="soft mt2" style="padding:11px 14px">
+        <p class="s" style="font-size:13px;line-height:1.36"><b>Definisi teknisnya:</b> <code>INNER JOIN</code> mengembalikan baris yang punya pasangan di <i>kedua</i> tabel; tanpa pasangan &rarr; dibuang. <code>LEFT JOIN</code> mengembalikan <i>seluruh</i> baris tabel kiri; tanpa pasangan di kanan &rarr; kolom kanan berisi <code>NULL</code>, barisnya tetap ada.</p>
       </div>
     </div>
   </div>
@@ -658,8 +694,8 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
 <section class="slide" data-chap="Bab 2: Relasi" data-title="Apa yang terjadi saat induknya dihapus">
   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
     <div>
-      <h2 class="wide">Rani minta datanya dihapus. Pesanannya gimana?</h2>
-      <p class="lede" style="font-size:19px">Ini yang dimaksud relasi kuat dan lemah: anaknya bisa hidup sendiri atau nggak.</p>
+      <h2 class="wide" style="font-size:38px">Rani minta datanya dihapus. Pesanannya gimana?</h2>
+      <p class="lede" style="font-size:15.5px;margin-top:6px">Karena FK menjaga referential integrity, database harus tahu apa yang dilakukan pada baris anak saat induknya dihapus. Aturan itu ditulis di FK lewat <code>ON DELETE</code>, disebut <b>referential action</b>.</p>
     </div>
     <div class="seg" role="group" aria-label="Aturan hapus">
       <button data-del="restrict" aria-pressed="true">RESTRICT</button>
@@ -667,19 +703,30 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
       <button data-del="setnull" aria-pressed="false">SET NULL</button>
     </div>
   </div>
-  <div class="g-l mt3 grow">
+  <div class="g-l mt1 grow" style="gap:30px">
     <div>
-      <div class="card">
+      <div class="card" style="padding:16px 18px">
         <p class="s"><code id="del-ddl" style="font-size:13px"></code></p>
-        <button class="b b-danger mt3" id="del-run">Hapus pelanggan Rani</button>
-        <button class="b b-secondary mt3" id="del-reset">Reset</button>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button class="b b-danger" id="del-run">Hapus pelanggan Rani</button>
+          <button class="b b-secondary" id="del-reset">Reset</button>
+        </div>
       </div>
-      <div class="soft mt2"><p class="s" id="del-note"></p></div>
+      <div class="soft mt2" style="padding:12px 16px"><p class="s" id="del-note" style="font-size:13.5px;line-height:1.38"></p></div>
     </div>
-    <div class="card">
-      <h3>Isi tabel order</h3>
-      <table class="t-sm mt1" id="del-table"></table>
-      <p class="s mt2" id="del-result" style="font-weight:700">&nbsp;</p>
+    <div>
+      <div class="card" style="padding:16px 18px">
+        <h3 style="font-size:18px">Isi tabel order</h3>
+        <table class="t-xs mt1" id="del-table"></table>
+        <p class="s mt1" id="del-result" style="font-weight:700;font-size:14.5px">&nbsp;</p>
+      </div>
+      <div class="def mt2">
+        <span class="lbl">Istilah baku</span>
+        <dl>
+          <dt>Entitas lemah</dt><dd>Tidak bermakna tanpa induknya. <code>order_item</code> tanpa <code>order</code>. Cocok <code>CASCADE</code>.</dd>
+          <dt>Entitas kuat</dt><dd>Tetap bermakna sendiri. <code>order</code> tanpa pelanggan tetap penjualan. Cocok <code>RESTRICT</code> atau <code>SET NULL</code>.</dd>
+        </dl>
+      </div>
     </div>
   </div>
 </section>
@@ -689,51 +736,149 @@ html.portrait .overview{padding:calc(28px + env(safe-area-inset-top,0px)) 20px 4
   <div class="grow center-v">
     <span class="chap-no">bab 3</span>
     <h1 class="chap-title">Rapi dulu, baru boleh sengaja nggak rapi</h1>
-    <p class="lede">Normalisasi sering diajarkan seperti hafalan bentuk pertama sampai ketiga. Padahal isinya cuma satu pertanyaan yang diulang tiga kali.</p>
+    <p class="lede">Normalisasi sering diajarkan sebagai hafalan 1NF sampai 3NF. Di bab ini tiap tingkat ditunjukkan dengan tabel kedai kopi sebelum dan sesudah dipecah, lengkap dengan kolom mana yang melanggar dan kenapa.</p>
     <ul class="chap-list">
-      <li>Satu pertanyaan, tiga tingkat</li><li>Denormalisasi yang disengaja</li>
-      <li>Penamaan tabel dan kolom</li><li>Struktur baku tiap tabel</li>
+      <li>Tiga istilah dasar</li><li>1NF, 2NF, 3NF dengan tabel nyata</li>
+      <li>Denormalisasi yang disengaja</li><li>Penamaan dan struktur baku tabel</li>
     </ul>
   </div>
 </section>
 
-<section class="slide" data-chap="Bab 3: Normalisasi" data-title="Satu pertanyaan, tiga tingkat">
-  <h2 class="wide">Pertanyaannya: kolom ini sebenarnya milik siapa?</h2>
-  <p class="lede">Kalau sebuah kolom lebih menggambarkan hal lain daripada baris tempat dia duduk, dia salah kamar. Itu inti 1NF sampai 3NF.</p>
-  <div class="g3 mt3">
-    <div class="card">
-      <span class="chip neutral">Tingkat 1</span>
-      <h3 class="mt1">Satu kotak, satu nilai</h3>
-      <p class="s dim mt1">Kolom <code>menu</code> berisi <code>"kopi susu, roti"</code> melanggar ini. Nilai yang ditumpuk nggak bisa dijumlah, dijoin, atau diindeks.</p>
-      <p class="hand mt2" style="font-size:22px">pecah jadi baris, bukan koma</p>
+<section class="slide" data-chap="Bab 3: Normalisasi" data-title="Normalisasi dan tiga istilah dasarnya">
+  <h2 class="wide" style="font-size:36px">Normalisasi: aturan supaya satu fakta cuma disimpan di satu tempat</h2>
+  <p class="lede" style="font-size:17.5px;margin-top:8px"><b>Normalisasi</b> adalah proses memecah tabel secara bertahap (1NF, 2NF, 3NF) sampai tidak ada fakta yang tersimpan berulang. Tujuannya menghilangkan tiga anomali dari tabel datar di Bab 1. Untuk mengikutinya, kamu cuma perlu tiga istilah ini.</p>
+  <div class="g3 mt2" style="gap:16px">
+    <div class="card" style="padding:16px 18px">
+      <span class="chip neutral">Istilah 1</span>
+      <h3 class="mt1" style="font-size:18px">Ketergantungan fungsional</h3>
+      <p class="xs dim mt0">functional dependency, ditulis <code>A &rarr; B</code></p>
+      <p class="s mt1" style="font-size:14.5px;line-height:1.4">"Kalau nilai A diketahui, nilai B pasti cuma satu."</p>
+      <p class="s mt1" style="font-size:14px;line-height:1.4"><code>product_id &rarr; nama_menu</code> benar: produk nomor 1 selalu "Kopi susu". <code>nama_menu &rarr; qty</code> salah: kopi susu bisa dipesan 1, 2, atau 3.</p>
     </div>
-    <div class="card">
-      <span class="chip neutral">Tingkat 2</span>
-      <h3 class="mt1">Nggak cuma ikut separuh kunci</h3>
-      <p class="s dim mt1">Di <code>order_item</code>, kolom <code>nama_menu</code> cuma ditentukan oleh menunya, bukan oleh pasangan pesanan dan menu. Tempatnya di tabel <code>product</code>.</p>
-      <p class="hand mt2" style="font-size:22px">nempel di kunci yang salah</p>
+    <div class="card" style="padding:16px 18px">
+      <span class="chip neutral">Istilah 2</span>
+      <h3 class="mt1" style="font-size:18px">Kunci dan kunci gabungan</h3>
+      <p class="xs dim mt0">key dan composite key</p>
+      <p class="s mt1" style="font-size:14.5px;line-height:1.4">Kolom yang menentukan semua kolom lain di barisnya.</p>
+      <p class="s mt1" style="font-size:14px;line-height:1.4">Kalau satu kolom saja tidak cukup, kuncinya gabungan. Di baris struk, <code>(order_code, product_id)</code> bersama-sama menentukan <code>qty</code>: pesanan mana dan menu apa.</p>
     </div>
-    <div class="card">
-      <span class="chip neutral">Tingkat 3</span>
-      <h3 class="mt1">Nggak numpang kolom lain</h3>
-      <p class="s dim mt1">Di <code>order</code>, kolom <code>no_hp_pelanggan</code> ditentukan oleh <code>customer_id</code>, bukan oleh pesanannya. Nomor ganti, semua baris lama bohong.</p>
-      <p class="hand mt2" style="font-size:22px">numpang lewat kolom tetangga</p>
+    <div class="card" style="padding:16px 18px">
+      <span class="chip neutral">Istilah 3</span>
+      <h3 class="mt1" style="font-size:18px">Atribut bukan-kunci</h3>
+      <p class="xs dim mt0">non-key attribute</p>
+      <p class="s mt1" style="font-size:14.5px;line-height:1.4">Semua kolom yang bukan bagian dari kunci.</p>
+      <p class="s mt1" style="font-size:14px;line-height:1.4">Di baris struk: <code>qty</code>, <code>nama_menu</code>, <code>harga</code>. Kolom-kolom inilah yang diperiksa di setiap tingkat normalisasi.</p>
     </div>
   </div>
-  <div class="soft mt3"><p class="s"><b>Cara cepat mengetesnya tanpa teori:</b> tunjuk satu kolom, lalu tanya "kalau saya ubah ini, ada berapa baris yang harus ikut saya ubah supaya tetap benar?" Kalau jawabannya lebih dari satu, kolom itu salah kamar.</p></div>
+  <div class="def mt2">
+    <span class="lbl">Inti 1NF sampai 3NF dalam satu kalimat</span>
+    <p>Setiap atribut bukan-kunci harus bergantung pada <b>kunci</b> (1NF), pada <b>seluruh</b> kunci (2NF), dan <b>tidak pada apa pun selain</b> kunci (3NF). Tiga slide berikutnya membuktikan satu per satu dengan tabel kedai kopi.</p>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Normalisasi" data-title="1NF: satu sel, satu nilai">
+  <h2 class="wide" style="font-size:36px">1NF: setiap sel berisi satu nilai, bukan daftar</h2>
+  <p class="lede" style="font-size:17px;margin-top:8px"><b>Aturannya:</b> tabel memenuhi 1NF (First Normal Form) jika setiap kolom berisi nilai <b>atomik</b>, artinya tidak bisa dipecah lagi, dan tidak ada kolom berulang seperti <code>menu_1</code>, <code>menu_2</code>, <code>menu_3</code>.</p>
+  <div class="nfrow mt2">
+    <div><table class="nf"><caption>pesanan &mdash; sebelum</caption><tr><th class="k">code</th><th class="">pelanggan</th><th class="bad">menu</th><th class="bad">qty</th></tr><tr><td class="k">A-2291</td><td class="">Rani</td><td class="bad">Kopi susu, Americano, Roti bakar</td><td class="bad">2, 1, 1</td></tr><tr><td class="k">A-2292</td><td class="">Bagas</td><td class="bad">Kopi susu</td><td class="bad">1</td></tr></table></div>
+    <div class="nfarrow">&rarr;</div>
+    <div><table class="nf"><caption>pesanan &mdash; sesudah</caption><tr><th class="k">code</th><th class="">pelanggan</th><th class="ok">menu</th><th class="ok">qty</th></tr><tr><td class="k">A-2291</td><td class="">Rani</td><td class="ok">Kopi susu</td><td class="ok">2</td></tr><tr><td class="k">A-2291</td><td class="">Rani</td><td class="ok">Americano</td><td class="ok">1</td></tr><tr><td class="k">A-2291</td><td class="">Rani</td><td class="ok">Roti bakar</td><td class="ok">1</td></tr><tr><td class="k">A-2292</td><td class="">Bagas</td><td class="ok">Kopi susu</td><td class="ok">1</td></tr></table></div>
+  </div>
+  <div class="legend mt1"><span><i style="background:var(--ink)"></i>kunci</span><span><i style="background:var(--pen-soft);border:1px solid var(--pen)"></i>kolom yang melanggar</span><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>kolom yang sudah benar</span></div>
+  <div class="g2 mt2" style="gap:18px">
+    <div class="def">
+      <span class="lbl">Kenapa kiri melanggar</span>
+      <p>Satu sel <code>menu</code> berisi tiga nilai. Pertanyaan "bulan ini kopi susu terjual berapa gelas" tidak bisa dijawab dengan <code>SUM(qty)</code>; harus memotong teks, dan kolom <code>qty</code> harus dicocokkan posisinya satu per satu.</p>
+    </div>
+    <div class="def" style="border-color:var(--pen)">
+      <span class="lbl" style="background:var(--pen)">Belum selesai</span>
+      <p>Tabel kanan sudah 1NF, tapi "Rani" sekarang tertulis tiga kali untuk satu pesanan. Redundansi seperti ini yang dibereskan 2NF dan 3NF.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Normalisasi" data-title="2NF: bergantung pada seluruh kunci">
+  <h2 class="wide" style="font-size:34px">2NF: kolom harus bergantung pada seluruh kunci, bukan sebagian</h2>
+  <p class="lede" style="font-size:16.5px;margin-top:6px"><b>Aturannya:</b> sudah 1NF, dan tidak ada <b>ketergantungan parsial</b> (partial dependency): atribut bukan-kunci yang cuma ditentukan oleh <i>sebagian</i> kunci gabungan. Aturan ini hanya relevan kalau kuncinya gabungan.</p>
+  <div class="nfrow mt1" style="grid-template-columns:1.15fr 34px 1fr">
+    <div><table class="nf"><caption>baris_pesanan &mdash; sebelum</caption><tr><th class="k">order_code</th><th class="k">product_id</th><th class="ok">qty</th><th class="bad">nama_menu</th><th class="bad">harga_menu</th></tr><tr><td class="k">A-2291</td><td class="k">1</td><td class="ok">2</td><td class="bad">Kopi susu</td><td class="bad">22.000</td></tr><tr><td class="k">A-2291</td><td class="k">2</td><td class="ok">1</td><td class="bad">Americano</td><td class="bad">22.000</td></tr><tr><td class="k">A-2292</td><td class="k">1</td><td class="ok">1</td><td class="bad">Kopi susu</td><td class="bad">22.000</td></tr><tr><td class="k">A-2295</td><td class="k">1</td><td class="ok">3</td><td class="bad">Kopi susu</td><td class="bad">22.000</td></tr></table></div>
+    <div class="nfarrow">&rarr;</div>
+    <div style="display:flex;flex-direction:column;gap:8px"><table class="nf"><caption>baris_pesanan</caption><tr><th class="k">order_code</th><th class="k">product_id</th><th class="ok">qty</th></tr><tr><td class="k">A-2291</td><td class="k">1</td><td class="ok">2</td></tr><tr><td class="k">A-2291</td><td class="k">2</td><td class="ok">1</td></tr><tr><td class="k">A-2292</td><td class="k">1</td><td class="ok">1</td></tr><tr><td class="k">A-2295</td><td class="k">1</td><td class="ok">3</td></tr></table><table class="nf"><caption>product</caption><tr><th class="k">product_id</th><th class="ok">nama_menu</th><th class="ok">harga_menu</th></tr><tr><td class="k">1</td><td class="ok">Kopi susu</td><td class="ok">22.000</td></tr><tr><td class="k">2</td><td class="ok">Americano</td><td class="ok">22.000</td></tr></table></div>
+  </div>
+  <div class="g2 mt1" style="gap:18px;grid-template-columns:1.15fr 1fr">
+    <div class="def">
+      <span class="lbl">Periksa ketergantungannya</span>
+      <div class="dep">
+        <span class="y">&#10003;</span> (order_code, product_id) &rarr; qty &nbsp;<span class="xs dim" style="font-family:var(--sans)">seluruh kunci</span><br>
+        <span class="n">&#10007;</span> product_id &rarr; nama_menu, harga_menu &nbsp;<span class="xs dim" style="font-family:var(--sans)">cuma separuh kunci</span>
+      </div>
+      <p class="mt1" style="font-size:13.5px">Akibatnya "Kopi susu, 22.000" tertulis ulang di setiap pesanan.</p>
+    </div>
+    <div class="def" style="border-color:var(--ok)">
+      <span class="lbl" style="background:var(--ok)">Catatan penting</span>
+      <p style="font-size:13.5px"><code>unit_price</code> di skema final <b>tidak</b> melanggar 2NF: "harga yang dibayar di baris ini" bergantung pada seluruh kunci. Beda fakta dengan "harga menu hari ini".</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Normalisasi" data-title="3NF: tidak menumpang kolom lain">
+  <h2 class="wide" style="font-size:34px">3NF: kolom tidak boleh bergantung pada kolom bukan-kunci lain</h2>
+  <p class="lede" style="font-size:16.5px;margin-top:6px"><b>Aturannya:</b> sudah 2NF, dan tidak ada <b>ketergantungan transitif</b> (transitive dependency): kunci &rarr; A &rarr; B, di mana A sendiri bukan kunci. B "menumpang" lewat A, bukan bergantung langsung pada kunci.</p>
+  <div class="nfrow mt1" style="grid-template-columns:1.15fr 34px 1fr">
+    <div><table class="nf"><caption>orders &mdash; sebelum</caption><tr><th class="k">id</th><th class="ok">customer_id</th><th class="bad">nama_pelanggan</th><th class="bad">no_hp</th><th class="ok">total</th></tr><tr><td class="k">2291</td><td class="ok">7</td><td class="bad">Rani</td><td class="bad">0812-1111</td><td class="ok">84.000</td></tr><tr><td class="k">2293</td><td class="ok">7</td><td class="bad">Rani</td><td class="bad">0812-1111</td><td class="ok">40.000</td></tr><tr><td class="k">2295</td><td class="ok">12</td><td class="bad">Bagas</td><td class="bad">0813-2222</td><td class="ok">18.000</td></tr></table></div>
+    <div class="nfarrow">&rarr;</div>
+    <div style="display:flex;flex-direction:column;gap:8px"><table class="nf"><caption>orders</caption><tr><th class="k">id</th><th class="ok">customer_id</th><th class="ok">total</th></tr><tr><td class="k">2291</td><td class="ok">7</td><td class="ok">84.000</td></tr><tr><td class="k">2293</td><td class="ok">7</td><td class="ok">40.000</td></tr><tr><td class="k">2295</td><td class="ok">12</td><td class="ok">18.000</td></tr></table><table class="nf"><caption>customer</caption><tr><th class="k">id</th><th class="ok">nama</th><th class="ok">no_hp</th></tr><tr><td class="k">7</td><td class="ok">Rani</td><td class="ok">0812-1111</td></tr><tr><td class="k">12</td><td class="ok">Bagas</td><td class="ok">0813-2222</td></tr></table></div>
+  </div>
+  <div class="g2 mt1" style="gap:18px;grid-template-columns:1.15fr 1fr">
+    <div class="def">
+      <span class="lbl">Periksa ketergantungannya</span>
+      <div class="dep">
+        <span class="y">&#10003;</span> id &rarr; customer_id, total<br>
+        <span class="n">&#10007;</span> id &rarr; customer_id &rarr; nama_pelanggan, no_hp
+      </div>
+      <p class="mt1" style="font-size:13.5px">Nama dan nomor HP ditentukan oleh pelanggannya, bukan oleh pesanannya. Rani ganti nomor, semua pesanan lamanya menyimpan nomor yang salah. Ini anomali update dari Bab 1.</p>
+    </div>
+    <div class="def" style="border-color:var(--ok)">
+      <span class="lbl" style="background:var(--ok)">Catatan penting</span>
+      <p style="font-size:13.5px">Kalau nanti <code>customer_name</code> sengaja disalin ke pesanan untuk menghindari N+1 atau membekukan nama di struk, itu <b>denormalisasi yang disengaja</b>, bukan kesalahan. Bedanya: dilakukan dengan sadar, dan ada yang menjaganya.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-chap="Bab 3: Normalisasi" data-title="Ringkasan normalisasi">
+  <h2 class="wide" style="font-size:36px">Ringkasan: tiga tingkat, tiga pertanyaan pengecek</h2>
+  <p class="lede" style="font-size:17px;margin-top:8px">Pakai tabel ini saat me-review ERD sendiri atau punya teman. Periksa berurutan: tabel tidak bisa 2NF kalau belum 1NF.</p>
+  <div class="card mt2" style="padding:14px 18px">
+    <table class="t-sm">
+      <tr><th style="width:9%">Bentuk</th><th style="width:24%">Aturan formal</th><th style="width:25%">Pertanyaan pengecek</th><th style="width:22%">Pelanggaran di kedai kopi</th><th>Perbaikannya</th></tr>
+      <tr><td><b>1NF</b></td><td class="dim">Nilai atomik, tidak ada kolom berulang</td><td>Ada sel yang berisi daftar, atau kolom bernomor <code>_1</code>, <code>_2</code>?</td><td class="dim"><code>menu = "Kopi susu, Roti"</code></td><td class="dim">Pecah jadi satu baris per nilai</td></tr>
+      <tr><td><b>2NF</b></td><td class="dim">Tidak ada ketergantungan parsial pada kunci gabungan</td><td>Kalau kuncinya gabungan, ada kolom yang cukup ditentukan separuh kuncinya?</td><td class="dim"><code>nama_menu</code> di baris pesanan</td><td class="dim">Pindahkan ke tabel milik separuh kunci itu</td></tr>
+      <tr><td><b>3NF</b></td><td class="dim">Tidak ada ketergantungan transitif</td><td>Ada kolom yang lebih tepat dijelaskan oleh kolom lain yang bukan kunci?</td><td class="dim"><code>no_hp</code> di tabel orders</td><td class="dim">Pindahkan ke tabel yang kuncinya kolom perantara itu</td></tr>
+    </table>
+  </div>
+  <div class="g2 mt2" style="gap:18px">
+    <div class="def">
+      <span class="lbl">Tes cepat tanpa istilah</span>
+      <p>Tunjuk satu kolom, tanya: "kalau nilai ini berubah di dunia nyata, berapa baris yang harus ikut saya ubah supaya tetap benar?" Lebih dari satu berarti kolom itu tinggal di tabel yang salah.</p>
+    </div>
+    <div class="def">
+      <span class="lbl">Setelah 3NF</span>
+      <p>Masih ada BCNF, 4NF, dan 5NF untuk kasus yang lebih jarang. Untuk sebagian besar aplikasi bisnis, 3NF sudah cukup, lalu sisanya adalah keputusan denormalisasi yang disengaja.</p>
+    </div>
+  </div>
 </section>
 
 <section class="slide" data-chap="Bab 3: Normalisasi" data-title="Denormalisasi yang disengaja">
   <div class="g-l grow ai-c">
     <div>
-      <h2 class="h-md">Menyimpan ulang itu boleh, asal kamu tahu siapa yang menjaganya</h2>
-      <p class="lede">Data hasil turunan bukan dosa. Yang bikin rusak adalah nggak ada yang bertanggung jawab menyamakannya lagi.</p>
-      <ul class="dots mt3 s">
+      <h2 class="h-md" style="font-size:32px">Menyimpan ulang itu boleh, asal ada yang menjaganya</h2>
+      <p class="lede" style="font-size:15.5px;line-height:1.42;margin-top:8px"><b>Denormalisasi</b> adalah kebalikan arah normalisasi: sengaja menyimpan data yang sebenarnya bisa diambil atau dihitung dari tabel lain, supaya baca lebih cepat atau nilainya beku. Kolom seperti ini disebut <b>kolom turunan</b> (derived column). Yang merusak bukan kolomnya, tapi kalau tidak ada yang menjaganya tetap sama.</p>
+      <ul class="dots mt1 s" style="font-size:15px">
         <li><b>Beku karena memang harus:</b> harga di struk lama. Nggak perlu disamakan, memang sengaja beda</li>
         <li><b>Disalin supaya cepat:</b> kolom <code>total</code> di pesanan, jumlah pesanan di pelanggan. Ini harus dijaga</li>
-        <li><b>Penjaganya pilih satu:</b> dihitung ulang di aplikasi tiap simpan, dipaksa lewat trigger, atau diperbarui berkala. Jangan tiga-tiganya, dan jangan nol</li>
+        <li><b>Penjaganya pilih satu:</b> aplikasi tiap simpan, trigger, atau pembaruan berkala. Jangan nol</li>
       </ul>
-      <p class="hand mt3" style="transform:rotate(-1deg);display:inline-block">normalisasi dulu, denormalisasi setelah ada bukti dari query log</p>
+      <p class="hand mt1" style="transform:rotate(-1deg);display:inline-block;font-size:21px">normalisasi dulu, denormalisasi setelah ada bukti</p>
     </div>
     <div class="card">
       <h3>Dua kolom yang sama-sama bernama total</h3>
@@ -834,7 +979,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   </div>
   <div class="g-r mt2 grow">
     <div>
-      <div class="qlog" id="np-log"></div>
+      <div class="qlog" id="np-log" style="height:236px"></div>
       <div class="metric">
         <div id="np-q-wrap"><b id="np-q">0</b><span>query ke database</span></div>
         <div id="np-t-wrap"><b id="np-t">0 ms</b><span>total waktu</span></div>
@@ -843,8 +988,11 @@ deleted_at      TIMESTAMPTZ NULL</pre>
     </div>
     <div>
       <button class="b b-primary" id="np-run">Buka halaman</button>
-      <p class="s mt3" id="np-note"></p>
-      <p class="hand mt3" id="np-hand" style="transform:rotate(-1deg);display:inline-block">&nbsp;</p>
+      <p class="s mt2" id="np-note" style="font-size:15px;line-height:1.4"></p>
+      <p class="hand mt1" id="np-hand" style="transform:rotate(-1deg);display:inline-block;font-size:19px">&nbsp;</p>
+      <div class="soft mt1" style="padding:10px 14px">
+        <p class="s" style="font-size:13.5px;line-height:1.35"><b>Definisi bakunya:</b> N+1 query problem = <b>1</b> query mengambil daftar utama, lalu <b>N</b> query tambahan (satu per baris) mengambil data terkaitnya. Kiri = <b>lazy loading</b> (diambil satu-satu belakangan). Kanan = <b>eager loading</b> (diambil sekaligus di muka) &mdash; istilah baku di semua dokumentasi ORM.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -852,35 +1000,73 @@ deleted_at      TIMESTAMPTZ NULL</pre>
 <section class="slide" data-chap="Bab 4: Tagihannya" data-title="Tiga jalan keluar N+1">
   <h2 class="wide">Tiga jalan keluar, dan masing-masing punya harga</h2>
   <p class="lede">Bukan soal mana yang paling benar. Soal mana yang cocok dengan bentuk halamannya.</p>
-  <div class="g3 mt3">
-    <div class="card">
-      <h3>Sambungkan di satu query</h3>
-      <pre style="font-size:11.5px;max-height:150px"><span class="k">SELECT</span> o.code, c.name
+  <div class="g3 mt2" style="gap:16px">
+    <div class="card" style="padding:16px 18px">
+      <h3 style="font-size:18px">1. JOIN &mdash; satu query</h3>
+      <pre style="font-size:11px;padding:10px 12px;max-height:none"><span class="k">SELECT</span> o.code, c.name
 <span class="k">FROM</span> order o
-<span class="k">LEFT JOIN</span> customer c
-  <span class="k">ON</span> c.id = o.customer_id
+<span class="k">LEFT JOIN</span> customer c <span class="k">ON</span> c.id=o.customer_id
 <span class="k">LIMIT</span> 25</pre>
-      <p class="xs dim mt2">Satu perjalanan ke database. Hati-hati kalau relasinya 1:N, barisnya berlipat dan datanya berulang.</p>
+      <p class="xs dim mt1" style="line-height:1.35">Satu perjalanan ke database. Hati-hati di relasi 1:N: barisnya berlipat, datanya berulang.</p>
     </div>
-    <div class="card">
-      <h3>Ambil dua query, gabung di aplikasi</h3>
-      <pre style="font-size:11.5px;max-height:150px"><span class="c">-- query 1</span>
+    <div class="card" style="padding:16px 18px">
+      <h3 style="font-size:18px">2. Eager loading &mdash; dua query</h3>
+      <pre style="font-size:11px;padding:10px 12px;max-height:none"><span class="c">-- ambil daftar</span>
 <span class="k">SELECT</span> * <span class="k">FROM</span> order <span class="k">LIMIT</span> 25
-<span class="c">-- query 2</span>
-<span class="k">SELECT</span> * <span class="k">FROM</span> customer
-<span class="k">WHERE</span> id <span class="k">IN</span> (7,12,19,...)</pre>
-      <p class="xs dim mt2">Ini yang dilakukan ORM saat kamu tulis <code>with()</code> atau <code>include</code>. Aman untuk relasi banyak, tetap dua query berapa pun barisnya.</p>
+<span class="c">-- ambil pelanggannya, sekaligus</span>
+<span class="k">SELECT</span> * <span class="k">FROM</span> customer <span class="k">WHERE</span> id <span class="k">IN</span> (...)</pre>
+      <p class="xs dim mt1" style="line-height:1.35">Yang dilakukan ORM saat kamu tulis <code>with()</code>/<code>include()</code>. Tetap dua query berapa pun jumlah barisnya.</p>
     </div>
-    <div class="card">
-      <h3>Simpan namanya di pesanan</h3>
-      <pre style="font-size:11.5px;max-height:150px"><span class="k">SELECT</span> code, customer_name
+    <div class="card" style="padding:16px 18px">
+      <h3 style="font-size:18px">3. Snapshot &mdash; nol query tambahan</h3>
+      <pre style="font-size:11px;padding:10px 12px;max-height:none"><span class="k">SELECT</span> code, customer_name
 <span class="k">FROM</span> order
 <span class="k">LIMIT</span> 25</pre>
-      <p class="xs dim mt2">Terdengar haram, tapi untuk data historis justru benar: nama di struk memang harus nama saat itu. Sama alasannya dengan harga yang dibekukan tadi.</p>
+      <p class="xs dim mt1" style="line-height:1.35">Untuk data historis ini benar, bukan akal-akalan: nama di struk memang harus nama saat itu.</p>
     </div>
   </div>
-  <div class="soft mt3"><p class="s"><b>Cara menemukannya tanpa menebak:</b> nyalakan pencatat query di mode pengembangan, buka satu halaman, hitung barisnya. Kalau jumlah query naik saat data bertambah, itu N+1. Halaman yang sehat: jumlah query tetap, berapa pun isinya.</p></div>
+  <div class="soft mt2" style="padding:12px 16px"><p class="s" style="font-size:15px"><b>Cara menemukannya tanpa menebak:</b> nyalakan pencatat query (query log) di mode pengembangan, buka satu halaman, hitung baris log yang muncul. Kalau jumlahnya naik seiring data bertambah, itu N+1. Halaman yang sehat: jumlah query tetap, berapa pun isinya.</p></div>
 </section>
+
+<section class="slide" data-chap="Bab 4: Tagihannya" data-title="Apa itu index">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+    <div>
+      <h2 class="wide" style="font-size:34px">Index itu indeks di belakang buku, tapi untuk satu kolom</h2>
+      <p class="lede" style="font-size:16px;margin-top:6px;max-width:70ch"><b>Index</b> adalah struktur data terpisah yang menyimpan nilai satu kolom dalam keadaan <b>terurut</b>, masing-masing dengan penunjuk ke baris aslinya. Dengannya, database langsung loncat ke baris yang dicari tanpa membaca seluruh tabel.</p>
+    </div>
+  </div>
+  <div class="grow" style="display:grid;grid-template-columns:4fr 3fr 5fr;gap:18px;align-items:start;margin-top:12px">
+    <div class="card" style="padding:12px 14px">
+      <h3 style="font-size:15px">Tabel <code>orders</code></h3>
+      <p class="xs dim">urutan simpan = urutan masuk</p>
+      <table class="nf ixt mt1" id="ix-table"></table>
+    </div>
+    <div class="card" style="padding:12px 14px" id="ix-idxcard">
+      <h3 style="font-size:15px">Index <code>customer_id</code></h3>
+      <p class="xs dim">urut berdasarkan nilai</p>
+      <table class="nf ixt mt1" id="ix-index"></table>
+    </div>
+    <div>
+      <div class="seg" role="group" aria-label="Cara mencari">
+        <button data-ix="scan" aria-pressed="true">Tanpa index</button>
+        <button data-ix="index" aria-pressed="false">Dengan index</button>
+      </div>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:10px">
+        <button class="b b-primary" id="ix-run">Cari <code style="background:transparent;color:inherit">customer_id = 7</code></button>
+        <div class="metric" style="margin-top:0"><div id="ix-cnt-wrap"><b id="ix-cnt" style="font-size:32px">0</b><span>baris disentuh</span></div></div>
+      </div>
+      <p class="s mt1" id="ix-note" style="font-size:13.5px;line-height:1.38;min-height:38px"></p>
+      <div class="def mt1">
+        <span class="lbl">Istilah baku</span>
+        <dl>
+          <dt>Sequential scan</dt><dd>Atau full table scan: membaca semua baris satu per satu. Waktunya naik lurus mengikuti jumlah baris.</dd>
+          <dt>Index scan</dt><dd>Mencari di index yang terurut, umumnya berbentuk <b>B-tree</b>: sejuta nilai cukup sekitar 20 langkah, lalu ambil baris yang ditunjuk.</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <section class="slide" data-chap="Bab 4: Tagihannya" data-title="Index dan foreign key">
   <div class="g-l grow ai-c">
@@ -913,16 +1099,17 @@ deleted_at      TIMESTAMPTZ NULL</pre>
     <div>
       <h2 class="h-md">Index bukan barang gratis</h2>
       <ul class="dots mt3 s">
-        <li><b>Setiap tulis jadi lebih mahal.</b> Insert satu pesanan berarti memperbarui tabel plus semua indexnya</li>
-        <li><b>Index gabungan itu berurutan.</b> Index pada <code>(outlet_id, created_at)</code> membantu pencarian per outlet, dan per outlet plus tanggal. Tapi nggak membantu pencarian tanggal saja</li>
-        <li><b>Kolom yang isinya cuma dua nilai</b> seperti <code>is_active</code> jarang berguna diindeks sendirian</li>
-        <li><b>Membungkus kolom dengan fungsi mematikan index.</b> <code>WHERE DATE(created_at) = ...</code> bikin index dilewati, ganti jadi rentang waktu</li>
+        <li><b>Biaya tulis (write overhead).</b> Insert satu pesanan berarti memperbarui tabel plus semua indexnya</li>
+        <li><b>Index gabungan (composite index) mengikuti aturan leftmost prefix:</b> index <code>(outlet_id, created_at)</code> terpakai untuk saringan outlet, atau outlet plus tanggal, tapi tidak untuk tanggal saja</li>
+        <li><b>Selektivitas rendah.</b> Kolom yang nilainya cuma sedikit ragam, seperti <code>is_active</code>, jarang berguna diindeks sendirian: separuh tabel tetap harus dibaca</li>
+        <li><b>Fungsi pada kolom mematikan index.</b> <code>WHERE DATE(created_at) = ...</code> bikin index dilewati; tulis sebagai rentang <code>created_at &gt;= ... AND &lt; ...</code></li>
         <li><b>Index yang nggak pernah kepakai</b> tetap menambah beban tulis. Cek statistik pemakaian index secara berkala, lalu buang</li>
       </ul>
     </div>
     <div>
       <div class="card">
         <h3>Ukur, jangan menebak</h3>
+        <p class="xs dim mt0"><code>EXPLAIN ANALYZE</code> menjalankan query sungguhan lalu melaporkan <b>execution plan</b>: cara database mengambil datanya (Seq Scan atau Index Scan) dan waktunya.</p>
         <pre class="mt1" style="max-height:200px"><span class="k">EXPLAIN ANALYZE</span>
 <span class="k">SELECT</span> * <span class="k">FROM</span> order
 <span class="k">WHERE</span> customer_id = 7;
@@ -945,7 +1132,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   <div class="g-r grow ai-c">
     <div>
       <h2 class="h-md">Kolom status berisi angka 0, 1, 2, 4 itu warisan yang perlu dipikir ulang</h2>
-      <p class="lede">Artinya hidup di komentar, bukan di database. Enam bulan kemudian nggak ada yang ingat 2 itu apa, dan laporan dibuat berdasarkan tebakan.</p>
+      <p class="lede" style="font-size:17.5px">Angka tanpa arti yang tersimpan di database disebut <b>magic number</b>: artinya hidup di komentar kode, bukan di data. Enam bulan kemudian tidak ada yang ingat 2 itu apa.</p>
       <ul class="dots mt3 s">
         <li>Simpan sebagai teks pendek yang kebaca: <code>'paid'</code>, <code>'cancelled'</code></li>
         <li>Atau tabel lookup tersendiri kalau statusnya bisa bertambah tanpa deploy</li>
@@ -954,7 +1141,8 @@ deleted_at      TIMESTAMPTZ NULL</pre>
     </div>
     <div>
       <div class="card">
-        <h3>Yang nggak dijaga kolom status</h3>
+        <h3>Yang dibutuhkan: state machine</h3>
+        <p class="xs dim mt0"><b>State machine</b> = daftar status yang sah, ditambah daftar perpindahan (transisi) yang boleh terjadi di antaranya.</p>
         <p class="s dim mt1">Kolom biasa membolehkan lompatan yang mustahil di dunia nyata. Pesanan yang sudah <code>refunded</code> bisa kembali jadi <code>draft</code> cuma karena satu bug di satu tombol.</p>
         <div class="soft mt2">
           <p class="s" style="font-family:var(--mono);font-size:13px;line-height:1.9">draft &rarr; placed &rarr; paid &rarr; served<br>
@@ -972,24 +1160,24 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   <div class="g-l grow ai-c">
     <div>
       <h2 class="h-md">Kalau ada tabel riwayat, kenapa kolom status masih ada?</h2>
-      <p class="lede">Karena keduanya menjawab pertanyaan yang berbeda, dan itu keputusan sadar, bukan duplikasi asal-asalan.</p>
-      <ul class="dots mt3 s">
-        <li><b>Tabel riwayat</b> menjawab "apa saja yang pernah terjadi, kapan, oleh siapa". Isinya cuma nambah, nggak pernah diubah</li>
-        <li><b>Kolom status di pesanan</b> menjawab "sekarang bagaimana" tanpa harus membaca seluruh riwayat tiap kali daftar dibuka</li>
-        <li><b>Pilih satu penjaga:</b> setiap penambahan riwayat sekaligus memperbarui kolomnya, dalam satu transaksi. Kalau nggak satu transaksi, suatu hari keduanya akan beda</li>
+      <p class="lede" style="font-size:17px">Karena keduanya menjawab pertanyaan yang berbeda. Ini denormalisasi yang disengaja.</p>
+      <ul class="dots mt2 s" style="font-size:16px">
+        <li><b>Tabel riwayat</b> menjawab "apa saja yang pernah terjadi, kapan, oleh siapa". Isinya cuma nambah, nggak pernah diubah. Pola ini disebut <b>append-only log</b> atau <b>audit trail</b></li>
+        <li><b>Kolom status</b> menjawab "sekarang bagaimana" tanpa harus membaca seluruh riwayat tiap kali daftar dibuka</li>
+        <li><b>Pilih satu penjaga:</b> tiap penambahan riwayat sekaligus memperbarui kolomnya, dalam satu transaksi</li>
       </ul>
-      <p class="hand mt3" style="transform:rotate(-1deg);display:inline-block">riwayat itu kebenaran, kolom status itu ringkasan</p>
+      <p class="hand mt1" style="transform:rotate(-1deg);display:inline-block;font-size:22px">riwayat itu kebenaran, kolom status itu ringkasan</p>
     </div>
-    <div class="card">
-      <h3>order_status_log</h3>
-      <table class="t-sm mt1">
+    <div class="card" style="padding:18px 20px">
+      <h3 style="font-size:19px">order_status_log</h3>
+      <table class="t-xs mt1">
         <tr><th>order_id</th><th>from</th><th>to</th><th>at</th><th>by</th></tr>
         <tr><td>2291</td><td class="dim">-</td><td>draft</td><td class="dim">08.39</td><td class="dim">Dimas</td></tr>
         <tr><td>2291</td><td class="dim">draft</td><td>placed</td><td class="dim">08.40</td><td class="dim">Dimas</td></tr>
         <tr><td>2291</td><td class="dim">placed</td><td>paid</td><td class="dim">08.41</td><td class="dim">Dimas</td></tr>
         <tr><td>2291</td><td class="dim">paid</td><td>served</td><td class="dim">08.47</td><td class="dim">Sinta</td></tr>
       </table>
-      <p class="s mt3"><b>Bonus yang sering dilupa:</b> tabel ini bikin pertanyaan bisnis jadi gampang. Rata-rata dari bayar sampai tersaji berapa menit? Jam berapa paling lambat? Tanpa tabel ini, semua itu cuma perasaan.</p>
+      <p class="s mt2" style="font-size:14.5px;line-height:1.4"><b>Bonus yang sering dilupa:</b> tabel ini bikin pertanyaan bisnis jadi gampang. Rata-rata dari bayar sampai tersaji berapa menit? Tanpa tabel ini, semua itu cuma perasaan.</p>
     </div>
   </div>
 </section>
@@ -998,9 +1186,9 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   <div class="g2 grow ai-c">
     <div>
       <h2 class="h-md">Hapus lunak diam-diam bertengkar dengan aturan unik</h2>
-      <p class="lede">Menu "Kopi Susu" dengan kode <code>KS01</code> dihapus. Bulan depan menunya balik lagi. Sistem menolak: kode sudah dipakai, padahal yang memakai adalah baris yang katanya sudah dihapus.</p>
+      <p class="lede" style="font-size:16px"><b>Soft delete</b> (hapus lunak): baris tidak benar-benar dihapus, hanya ditandai lewat kolom seperti <code>deleted_at</code>. Kebalikannya <b>hard delete</b>: <code>DELETE</code> sungguhan. Masalahnya: menu kode <code>KS01</code> di-soft-delete, bulan depan dibuat lagi, dan sistem menolak karena kode itu masih dipakai baris yang "sudah dihapus".</p>
       <div class="card mt3">
-        <p class="s"><b>Jalan keluarnya di PostgreSQL:</b> aturan unik yang cuma berlaku untuk baris yang masih hidup.</p>
+        <p class="s"><b>Jalan keluarnya: partial unique index</b>, aturan unik yang cuma berlaku untuk baris yang memenuhi syarat <code>WHERE</code>. Ada di PostgreSQL; di MySQL diganti kolom turunan (Bab 7).</p>
         <pre class="mt2" style="font-size:11.8px"><span class="k">CREATE UNIQUE INDEX</span> uq_product_sku_alive
   <span class="k">ON</span> product(sku)
   <span class="k">WHERE</span> deleted_at <span class="k">IS NULL</span>;</pre>
@@ -1027,7 +1215,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
       <h2 class="h-md">Laporan harian yang geser tujuh jam</h2>
       <p class="lede">Server di Singapura, kedai di Jakarta, developer menyimpan waktu tanpa keterangan zona. Laporan "penjualan hari ini" ternyata berisi penjualan dari jam 7 pagi kemarin.</p>
       <ul class="dots mt3 s">
-        <li>Simpan pakai <code>TIMESTAMPTZ</code>, satu titik waktu yang nggak ambigu</li>
+        <li><b><code>TIMESTAMPTZ</code></b> (timestamp with time zone) menyimpan satu titik waktu absolut, di PostgreSQL disimpan sebagai UTC, lalu dikonversi ke zona pembaca. <code>TIMESTAMP</code> biasa menyimpan angka jam apa adanya tanpa tahu itu jam di kota mana</li>
         <li>Tampilkan dalam zona penggunanya, bukan zona servernya</li>
         <li>Hari buka kedai belum tentu tengah malam. Tutup jam 1 pagi artinya penjualan jam 00.30 masih masuk hari sebelumnya, dan itu aturan bisnis yang harus ditulis</li>
       </ul>
@@ -1049,7 +1237,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
     <div>
       <h2 class="wide">Croissant tinggal satu. Dua orang memesan di detik yang sama.</h2>
-      <p class="lede" style="font-size:19px">Logikanya kelihatan benar kalau dibaca sendirian: cek stok, kalau masih ada, kurangi.</p>
+      <p class="lede" style="font-size:17.5px;line-height:1.4">Ini yang disebut <b>race condition</b>: dua proses membaca kondisi yang sama sebelum salah satunya sempat menulis, jadi keduanya bertindak berdasarkan data yang sudah basi.</p>
     </div>
     <div class="seg" role="group" aria-label="Cara mengurangi stok">
       <button data-race="naive" aria-pressed="true">Cek dulu, baru kurangi</button>
@@ -1059,7 +1247,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   <div class="g-l mt2 grow">
     <div>
       <div class="card">
-        <pre id="race-code" style="max-height:190px;font-size:12px"></pre>
+        <pre id="race-code" style="max-height:none;font-size:11.5px;padding:12px 14px"></pre>
         <button class="b b-primary mt2" id="race-run">Dua pesanan masuk bersamaan</button>
         <button class="b b-secondary mt2" id="race-reset">Reset</button>
       </div>
@@ -1069,8 +1257,8 @@ deleted_at      TIMESTAMPTZ NULL</pre>
         <div><span class="stockn" id="race-stock">1</span></div>
         <div class="s dim">croissant tersisa</div>
       </div>
-      <div class="mt2" id="race-log" style="min-height:120px"></div>
-      <p class="s mt2" id="race-note" style="font-weight:700">&nbsp;</p>
+      <div class="mt1" id="race-log" style="min-height:110px"></div>
+      <p class="s mt1" id="race-note" style="font-weight:700;font-size:14.5px;line-height:1.38">&nbsp;</p>
     </div>
   </div>
 </section>
@@ -1080,29 +1268,28 @@ deleted_at      TIMESTAMPTZ NULL</pre>
     <div>
       <h2 class="h-md">Beberapa perintah yang harus jadi satu kejadian</h2>
       <p class="lede">Simpan pesanan, simpan itemnya, kurangi stok, catat riwayat status. Kalau listrik mati di tengah, yang sudah terlanjur masuk harus ikut dibatalkan.</p>
-      <ul class="dots mt3 s">
-        <li>Bungkus dalam satu transaksi, dan pastikan urusan lambat seperti kirim struk ke WhatsApp ditaruh di luar</li>
-        <li>Transaksi yang lama memegang kunci baris, dan antrean di belakangnya ikut menunggu</li>
-        <li>Kalau dua transaksi mengunci baris dengan urutan berlawanan, keduanya saling menunggu. Kunci baris dengan urutan yang sama, misalnya selalu urut <code>id</code> menaik</li>
+      <p class="s mt2">Ini prinsip <b>atomicity</b>, huruf A di ACID: semua perintah dalam satu transaksi sukses bersama, atau semuanya batal bersama. Nggak ada kondisi setengah jalan &mdash; stok berkurang tapi pesanannya nggak tersimpan.</p>
+      <ul class="dots mt2 s">
+        <li>Bungkus dalam satu transaksi (<code>BEGIN</code>...<code>COMMIT</code>); urusan lambat seperti kirim WhatsApp taruh <i>di luar</i>-nya</li>
+        <li>Transaksi yang lama memegang kunci baris, antrean di belakangnya ikut menunggu</li>
       </ul>
     </div>
-    <div class="code">
-      <button class="copy">Salin</button>
-<pre><span class="k">BEGIN</span>;
-
+    <div>
+      <div class="code">
+        <button class="copy">Salin</button>
+<pre style="font-size:13px;line-height:1.5"><span class="k">BEGIN</span>;
 <span class="k">INSERT INTO</span> order (...) <span class="k">VALUES</span> (...);
 <span class="k">INSERT INTO</span> order_item (...) <span class="k">VALUES</span> (...);
-
-<span class="k">UPDATE</span> product
-   <span class="k">SET</span> stock = stock - 1
+<span class="k">UPDATE</span> product <span class="k">SET</span> stock = stock - 1
  <span class="k">WHERE</span> id = 12 <span class="k">AND</span> stock &gt;= 1;
-<span class="c">-- kalau 0 baris terpengaruh, batalkan semuanya</span>
-
+<span class="c">-- 0 baris terpengaruh? batalkan semuanya</span>
 <span class="k">INSERT INTO</span> order_status_log (...) <span class="k">VALUES</span> (...);
-
 <span class="k">COMMIT</span>;
-
 <span class="c">-- kirim struk ke WhatsApp: di luar transaksi</span></pre>
+      </div>
+      <div class="soft mt2">
+        <p class="s"><b>Deadlock:</b> dua transaksi saling menunggu kunci satu sama lain. Terjadi kalau urutan penguncian berlawanan &mdash; transaksi A mengunci baris 1 lalu minta baris 2, transaksi B mengunci baris 2 lalu minta baris 1, keduanya menunggu selamanya. Pencegahannya sederhana: kunci baris selalu dengan urutan yang sama, misalnya selalu urut <code>id</code> menaik.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -1124,7 +1311,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
   <div class="g-l grow ai-c">
     <div>
       <h2 class="h-md">Simbol di ujung garis dibaca dari ujung yang berseberangan</h2>
-      <p class="lede">Dua simbol menempel di tiap ujung. Yang dekat tabel menyatakan paling banyak berapa, yang agak jauh menyatakan paling sedikit berapa.</p>
+      <p class="lede" style="font-size:17px">Dua simbol menempel di tiap ujung garis. Yang menempel di tabel adalah <b>kardinalitas</b>: paling banyak satu atau banyak. Yang lebih jauh adalah <b>opsionalitas</b>: paling sedikit nol (boleh tidak ada) atau satu (wajib ada).</p>
       <table class="mt3 t-sm">
         <tr><th style="width:74px">Simbol</th><th>Artinya</th></tr>
         <tr><td style="font-family:var(--mono);font-size:19px">&#8214;</td><td>Tepat satu, wajib ada</td></tr>
@@ -1218,16 +1405,16 @@ deleted_at      TIMESTAMPTZ NULL</pre>
 </section>
 
 <section class="slide" data-chap="Bab 5: Baca dan rancang" data-title="Enam langkah merancang">
-  <h2 class="wide">Urutan kerjanya, supaya nggak mulai dari menggambar kotak</h2>
-  <div class="g3 mt3">
-    <div class="card"><h3>1. Tulis kalimat bisnisnya</h3><p class="s dim mt1">"Satu pesanan berisi banyak menu." Kata "banyak" dan "satu" di kalimat itu yang nanti jadi relasi.</p></div>
-    <div class="card"><h3>2. Lingkari kata bendanya</h3><p class="s dim mt1">Pesanan, menu, pelanggan, kasir. Kandidat tabel. Kata kerjanya jadi kandidat relasi.</p></div>
-    <div class="card"><h3>3. Tentukan kunci</h3><p class="s dim mt1">Apa yang bikin satu baris beda dari baris lain, dan kode apa yang dilihat pelanggan.</p></div>
-    <div class="card"><h3>4. Taruh FK dan pecah N:M</h3><p class="s dim mt1">Selalu di sisi banyak. Tabel penghubung dicek: ada kolom tambahan? Berarti dia entitas.</p></div>
-    <div class="card"><h3>5. Tulis lima pertanyaan</h3><p class="s dim mt1">Pertanyaan yang pasti ditanya pemilik kedai. Kalau salah satu nggak bisa dijawab skemamu, skemanya kurang.</p></div>
-    <div class="card"><h3>6. Isi data banyak, lalu ukur</h3><p class="s dim mt1">Seed ratusan ribu baris, buka halamannya, hitung query dan waktunya. Baru sesudah itu boleh menambah index.</p></div>
+  <h2 class="wide" style="font-size:38px">Urutan kerjanya, supaya nggak mulai dari menggambar kotak</h2>
+  <div class="g3 mt2" style="gap:14px">
+    <div class="card" style="padding:14px 16px"><h3 style="font-size:16.5px">1. Tulis kalimat bisnisnya</h3><p class="s dim mt1" style="font-size:14px;line-height:1.35">"Satu pesanan berisi banyak menu." Kata "banyak" dan "satu" nanti jadi relasi.</p></div>
+    <div class="card" style="padding:14px 16px"><h3 style="font-size:16.5px">2. Lingkari kata bendanya</h3><p class="s dim mt1" style="font-size:14px;line-height:1.35">Pesanan, menu, pelanggan, kasir: kandidat tabel. Kata kerjanya kandidat relasi.</p></div>
+    <div class="card" style="padding:14px 16px"><h3 style="font-size:16.5px">3. Tentukan kunci</h3><p class="s dim mt1" style="font-size:14px;line-height:1.35">Apa yang bikin satu baris beda dari yang lain, dan kode apa yang dilihat pelanggan.</p></div>
+    <div class="card" style="padding:14px 16px"><h3 style="font-size:16.5px">4. Taruh FK, pecah N:M</h3><p class="s dim mt1" style="font-size:14px;line-height:1.35">FK selalu di sisi banyak. Tabel penghubung berkolom tambahan? Itu entitas.</p></div>
+    <div class="card" style="padding:14px 16px"><h3 style="font-size:16.5px">5. Tulis lima pertanyaan</h3><p class="s dim mt1" style="font-size:14px;line-height:1.35">Pertanyaan yang pasti ditanya pemilik kedai. Nggak terjawab, skemanya kurang.</p></div>
+    <div class="card" style="padding:14px 16px"><h3 style="font-size:16.5px">6. Isi data banyak, ukur</h3><p class="s dim mt1" style="font-size:14px;line-height:1.35">Seed ratusan ribu baris, hitung query dan waktunya, baru tambah index.</p></div>
   </div>
-  <div class="soft mt3"><p class="s"><b>Langkah 6 yang paling sering dilewat di kelas.</b> Dengan 20 baris contoh, semua desain terasa sama cepatnya, dan semua argumen tentang index cuma jadi teori. Isi datanya sampai berat dulu, baru perdebatannya ada buktinya.</p></div>
+  <div class="soft mt2" style="padding:12px 16px"><p class="s" style="font-size:14.5px"><b>Langkah 6 yang paling sering dilewat di kelas.</b> Dengan 20 baris contoh, semua desain terasa sama cepatnya, dan semua argumen tentang index cuma jadi teori. Isi datanya sampai berat dulu, baru perdebatannya ada buktinya.</p></div>
 </section>
 
 <!-- ===================== BAB 6 ===================== -->
@@ -1254,24 +1441,24 @@ deleted_at      TIMESTAMPTZ NULL</pre>
       <button class="b b-secondary" id="q-reset">Ulang</button>
     </div>
   </div>
-  <div class="g-l mt2 grow" style="align-items:start;gap:34px">
+  <div class="g-l mt2 grow" style="align-items:start;gap:28px">
     <div>
-      <div class="card">
+      <div class="card" style="padding:18px 20px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span class="chip neutral" id="q-nomor">Kasus 1 dari 7</span>
           <span class="xs dim" id="q-topik"></span>
         </div>
-        <h3 class="mt2" id="q-judul"></h3>
-        <p class="s dim mt1" id="q-kasus"></p>
-        <p class="s mt2" style="font-weight:700" id="q-tanya"></p>
-        <div id="q-opsi" style="display:flex;flex-direction:column;gap:8px;margin-top:12px"></div>
+        <h3 class="mt1" id="q-judul" style="font-size:19px"></h3>
+        <p class="s dim mt1" id="q-kasus" style="font-size:14.5px;line-height:1.4"></p>
+        <p class="s mt1" style="font-weight:700;font-size:15px" id="q-tanya"></p>
+        <div id="q-opsi" style="display:flex;flex-direction:column;gap:7px;margin-top:10px"></div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:14px">
+      <div style="display:flex;gap:10px;margin-top:12px">
         <button class="b b-secondary" id="q-prev">Sebelumnya</button>
         <button class="b b-primary" id="q-next">Kasus berikutnya</button>
       </div>
     </div>
-    <div id="q-jawab" style="min-height:120px"></div>
+    <div id="q-jawab" class="card" style="padding:16px 18px;max-height:480px;overflow-y:auto;min-height:120px"></div>
   </div>
 </section>
 
@@ -1330,7 +1517,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
 <section class="slide board" data-chap="Bab 7: ERD bareng AI" data-title="Bab 7: ERD bareng AI">
   <div class="grow center-v">
     <span class="chap-no">bab 7</span>
-    <h1 class="chap-title">Merancang ERD bareng AI, dari PRD sampai masuk MySQL</h1>
+    <h1 class="chap-title" style="font-size:72px">Merancang ERD bareng AI, dari PRD sampai MySQL</h1>
     <p class="lede">AI menggambar dalam sepuluh detik. Yang menentukan hasilnya tetap kamu: bahan yang kamu berikan di awal, dan apa yang kamu tolak dari jawabannya.</p>
     <ul class="chap-list">
       <li>Bahan dari PRD dan FRD</li><li>Tiga prompt berurutan</li>
@@ -1342,8 +1529,8 @@ deleted_at      TIMESTAMPTZ NULL</pre>
 <section class="slide" data-chap="Bab 7: ERD bareng AI" data-title="Yang AI kerjakan dan yang selalu lewat">
   <h2 class="wide">Minta "buatkan ERD sistem reimburse", hasilnya benar dan generik</h2>
   <p class="lede">Bukan karena modelnya kurang pintar. Semua yang hilang di kolom kanan adalah hal yang cuma bisa diketahui dari aturan kantormu.</p>
-  <div class="g2 mt3">
-    <div class="lined">
+  <div class="g2 mt2">
+    <div class="lined" style="padding-top:10px">
       <h3>Hampir selalu benar tanpa diminta</h3>
       <ul class="dots s ok mt1">
         <li>Memecah tabel jadi entitas yang masuk akal</li>
@@ -1353,7 +1540,7 @@ deleted_at      TIMESTAMPTZ NULL</pre>
         <li>Penamaan yang konsisten</li>
       </ul>
     </div>
-    <div class="lined" style="border-color:var(--pen)">
+    <div class="lined" style="border-color:var(--pen);padding-top:10px">
       <h3>Hampir selalu hilang kalau tidak diminta</h3>
       <ul class="dots s pen mt1">
         <li>Kolom yang membekukan nilai saat transaksi: harga, nama, atasan</li>
@@ -1365,18 +1552,18 @@ deleted_at      TIMESTAMPTZ NULL</pre>
       </ul>
     </div>
   </div>
-  <div class="soft mt3"><p class="s">Semua yang di kanan adalah isi Bab 1 sampai 4 materi ini. Nilai kamu dalam alur kerja ini bukan menggambar kotak, tapi tahu apa yang harus diminta dan apa yang harus ditolak.</p></div>
+  <div class="soft mt2" style="padding:12px 16px"><p class="s" style="font-size:15px">Semua yang di kanan adalah isi Bab 1 sampai 4 materi ini. Nilai kamu dalam alur kerja ini bukan menggambar kotak, tapi tahu apa yang harus diminta dan apa yang harus ditolak.</p></div>
 </section>
 
 <section class="slide" data-chap="Bab 7: ERD bareng AI" data-title="Bahan dari PRD dan FRD">
   <div class="g-r grow ai-c">
     <div>
-      <h2 class="h-md">Bahannya sudah kamu tulis di materi PRD, tinggal dipakai lagi</h2>
-      <p class="lede">Lima potong ini yang membedakan ERD hasil brainstorming dari ERD hasil tebakan. Tanpa ini, AI mengisi sendiri dengan pola paling umum di internet.</p>
-      <p class="hand mt3" style="transform:rotate(-1deg);display:inline-block">tiga dari lima ini tidak ada di PRD, dan memang harus kamu tambahkan sendiri</p>
+      <h2 class="h-md" style="font-size:30px">Bahannya sudah kamu tulis di materi PRD, tinggal dipakai lagi</h2>
+      <p class="lede" style="font-size:17px;margin-top:8px">Lima potong ini yang membedakan ERD hasil brainstorming dari ERD hasil tebakan. Tanpa ini, AI mengisi sendiri dengan pola paling umum di internet.</p>
+      <p class="hand mt2" style="transform:rotate(-1deg);display:inline-block;font-size:21px">tiga dari lima ini tidak ada di PRD, dan memang harus kamu tambahkan sendiri</p>
     </div>
-    <div class="card">
-      <table class="t-sm">
+    <div class="card" style="padding:16px 18px">
+      <table class="t-xs">
         <tr><th style="width:34%">Bahan</th><th>Diambil dari</th></tr>
         <tr><td><b>Lingkup fitur</b><br><span class="xs dim">yang masuk dan yang ditunda</span></td><td class="dim">Bagian Lingkup di <code>prd.md</code></td></tr>
         <tr><td><b>Aturan bisnis</b><br><span class="xs dim">yang menentukan alur data</span></td><td class="dim">Tabel <code>BR-xx</code> di <code>frd.md</code></td></tr>
@@ -1464,7 +1651,7 @@ Setelah aku jawab, baru lanjut ke tahap 2.</pre>
 <section class="slide" data-chap="Bab 7: ERD bareng AI" data-title="Jawaban di tahap ini yang menentukan">
   <h2 class="wide">Pertanyaan yang layak dijawab serius, dan jawaban yang mengubah skema</h2>
   <p class="lede">Kalau AI tidak menanyakan salah satu dari ini, kamu yang harus mengangkatnya. Empat baris ini yang membuat skemanya bertahan di produksi.</p>
-  <div class="g2 mt2 grow" style="align-items:start">
+  <div class="g2 mt1 grow" style="align-items:start;gap:18px">
     <div class="card">
       <h3>Pertanyaan AI</h3>
       <ul class="dots s mt1">
@@ -1484,7 +1671,7 @@ Setelah aku jawab, baru lanjut ke tahap 2.</pre>
       </ul>
     </div>
   </div>
-  <div class="soft"><p class="s">Perhatikan pertanyaan pertama. Itu pertanyaan tentang pembekuan nilai, dan jawabannya menambah satu kolom yang tidak akan pernah muncul di ERD hasil tebakan. Pola yang sama dengan <code>unit_price</code> di struk kedai kopi.</p></div>
+  <div class="soft" style="padding:12px 16px"><p class="s" style="font-size:15px">Perhatikan pertanyaan pertama. Itu pertanyaan tentang pembekuan nilai, dan jawabannya menambah satu kolom yang tidak akan pernah muncul di ERD hasil tebakan. Pola yang sama dengan <code>unit_price</code> di struk kedai kopi.</p></div>
 </section>
 
 <section class="slide" data-chap="Bab 7: ERD bareng AI" data-title="Delapan titik review">
@@ -1621,10 +1808,10 @@ Keluarkan blok kodenya saja.</pre>
   <div class="g2 grow" style="align-items:start">
     <div>
       <h2 class="h-md" style="font-size:34px">Prompt ketiga: sebut versinya, dan sebut yang wajib ada</h2>
-      <p class="lede" style="font-size:18px">"Buatkan DDL MySQL" menghasilkan tabel tanpa index, tanpa aturan hapus, dan sering dengan tipe uang yang salah. Semua itu harus disebut.</p>
+      <p class="lede" style="font-size:16.5px;margin-top:8px">"Buatkan DDL MySQL" menghasilkan tabel tanpa index, tanpa aturan hapus, dan sering dengan tipe uang yang salah. Semua itu harus disebut.</p>
       <div class="code mt2">
         <button class="copy">Salin</button>
-<pre>Ubah ERD tadi jadi DDL <span class="k">MySQL 8.0</span>.
+<pre style="font-size:12px;line-height:1.38;padding:12px 16px">Ubah ERD tadi jadi DDL <span class="k">MySQL 8.0</span>.
 
 Wajib:
 - InnoDB, utf8mb4, collation utf8mb4_0900_ai_ci
@@ -1648,15 +1835,15 @@ yang bisa diperdebatkan.</pre>
     <div>
       <div class="card">
         <h3>Tiga hal yang khas MySQL, dan berbeda dari PostgreSQL</h3>
-        <table class="t-sm mt1">
-          <tr><th style="width:32%">Hal</th><th>Bedanya</th></tr>
-          <tr><td><b>Index untuk FK</b></td><td class="dim">InnoDB membuatkan otomatis. Tetap tulis manual supaya namanya bisa ditebak dan tidak hilang saat skema diubah.</td></tr>
-          <tr><td><b>Unique parsial</b></td><td class="dim">Tidak ada. Diganti kolom turunan: <code>IF(deleted_at IS NULL, nip, NULL)</code> lalu diberi <code>UNIQUE</code>.</td></tr>
-          <tr><td><b>Zona waktu</b></td><td class="dim"><code>TIMESTAMP</code> disimpan sebagai UTC dan dikonversi mengikuti setelan sesi. <code>DATETIME</code> tidak. Pilih satu, lalu konsisten.</td></tr>
+        <table class="t-xs mt1">
+          <tr><th style="width:30%">Hal</th><th>Bedanya</th></tr>
+          <tr><td><b>Index FK</b></td><td class="dim">InnoDB membuatkan otomatis. Tetap tulis manual supaya namanya bisa ditebak dan tidak hilang saat skema diubah.</td></tr>
+          <tr><td><b>Unique parsial</b></td><td class="dim">Tidak ada. Diganti kolom turunan <code>IF(deleted_at IS NULL, nip, NULL)</code> lalu diberi <code>UNIQUE</code>.</td></tr>
+          <tr><td><b>Zona waktu</b></td><td class="dim"><code>TIMESTAMP</code> tersimpan sebagai UTC dan ikut konversi sesi. <code>DATETIME</code> tidak. Pilih satu, konsisten.</td></tr>
         </table>
       </div>
-      <div class="soft mt2">
-        <p class="s"><b>Sebutkan versinya, bukan cuma "MySQL".</b> Collation <code>utf8mb4_0900_ai_ci</code> cuma ada di MySQL 8. Impor file yang sama ke MariaDB berhenti di baris pertama dengan <code>Unknown collation</code>.</p>
+      <div class="soft mt1" style="padding:12px 16px">
+        <p class="s" style="font-size:14px;line-height:1.4"><b>Sebutkan versinya, bukan cuma "MySQL".</b> Collation <code>utf8mb4_0900_ai_ci</code> cuma ada di MySQL 8. Impor file yang sama ke MariaDB berhenti di baris pertama dengan <code>Unknown collation</code>.</p>
       </div>
     </div>
   </div>
@@ -2026,12 +2213,12 @@ mysql -h 127.0.0.1 -u root -plab reimburse \
         $('race-log').innerHTML=tick('12:00.100','A membaca stok: 1')+tick('12:00.101','B membaca stok: 1')+
           tick('12:00.130','A: stok cukup, kurangi jadi 0')+tick('12:00.131','B: stok cukup (yang dibaca tadi), kurangi jadi -1','var(--pen)');
         $('race-stock').textContent='-1';$('race-stock').classList.add('neg');
-        $('race-note').innerHTML='<span style="color:var(--pen)">Dua struk tercetak, croissantnya satu. Pengecekan dan perubahan terjadi di dua waktu berbeda, dan celah di antaranya cukup untuk kacau.</span>';
+        $('race-note').innerHTML='<span style="color:var(--pen)">Dua struk tercetak, croissantnya satu &mdash; ini bentuk race condition-nya persis: <i>cek</i> dan <i>tulis</i> terjadi di dua waktu terpisah, dan celah di antaranya cukup untuk kacau.</span>';
       }else{
         $('race-log').innerHTML=tick('12:00.100','A mengirim update bersyarat')+tick('12:00.101','B mengirim update bersyarat')+
           tick('12:00.102','A mengunci baris, stok jadi 0, 1 baris terpengaruh','var(--ok)')+tick('12:00.103','B menunggu kunci, syarat stock >= 1 gagal, 0 baris terpengaruh');
         $('race-stock').textContent='0';$('race-stock').classList.remove('neg');
-        $('race-note').innerHTML='<span style="color:var(--ok)">B ditolak dengan sopan sebelum struknya dicetak. Syaratnya ikut di dalam perintah yang sama, jadi nggak ada celah di tengah.</span>';
+        $('race-note').innerHTML='<span style="color:var(--ok)">B ditolak dengan sopan sebelum struknya dicetak. <i>Cek</i> dan <i>tulis</i> digabung jadi satu perintah atomik, jadi nggak ada celah waktu tempat race condition bersembunyi.</span>';
       }
     };
     $('race-reset').onclick=reset;
@@ -2164,7 +2351,7 @@ mysql -h 127.0.0.1 -u root -plab reimburse \
       $('q-tanya').innerHTML=s.tanya;
       qBox.innerHTML=s.opsi.map((o,i)=>{
         const dipilih=jawab[qi]===i, terjawab=jawab[qi]!==null, ini_benar=i===s.benar;
-        let gaya='text-align:left;padding:11px 14px;line-height:1.35';
+        let gaya='text-align:left;padding:8px 12px;line-height:1.32;font-size:14px';
         if(terjawab&&ini_benar)gaya+=';border-color:var(--ok);background:var(--ok-soft);color:var(--ok)';
         else if(dipilih)gaya+=';border-color:var(--pen);background:var(--pen-soft);color:var(--pen)';
         return '<button class="b b-secondary" data-opsi="'+i+'" style="'+gaya+'">'+
@@ -2179,18 +2366,57 @@ mysql -h 127.0.0.1 -u root -plab reimburse \
       $('q-next').disabled=qi===soal.length-1;
       const j=$('q-jawab');
       if(jawab[qi]===null){
-        j.innerHTML='<div class="soft"><p class="s dim">Jawabannya muncul di sini setelah kamu memilih. Tulis dulu di kertas: berapa tabel, dan di tabel mana kolom penunjuknya.</p></div>';
+        j.innerHTML='<p class="s dim" style="font-size:14.5px;line-height:1.4">Jawabannya muncul di sini setelah kamu memilih. Tulis dulu di kertas: berapa tabel, dan di tabel mana kolom penunjuknya.</p>';
       }else{
         const tepat=jawab[qi]===s.benar;
-        j.innerHTML='<span class="chip '+(tepat?'good':'bad')+'">'+(tepat?'Tepat':'Belum tepat, jawabannya '+'ABC'[s.benar])+'</span>'+
-          '<div class="erd mt2" style="flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px">'+s.erd+'</div>'+
-          '<p class="s mt3">'+s.kenapa+'</p>';
+        j.innerHTML='<span class="chip '+(tepat?'good':'bad')+'" style="font-size:12px">'+(tepat?'Tepat':'Belum tepat, jawabannya '+'ABC'[s.benar])+'</span>'+
+          '<div class="erd mt2" style="flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;transform:scale(.88);transform-origin:left top">'+s.erd+'</div>'+
+          '<p class="s mt1" style="font-size:14px;line-height:1.42">'+s.kenapa+'</p>';
       }
     }
     $('q-prev').onclick=()=>{if(qi>0){qi--;render();}};
     $('q-next').onclick=()=>{if(qi<soal.length-1){qi++;render();}};
     $('q-reset').onclick=()=>{jawab.fill(null);qi=0;render();};
     render();
+  }
+
+  /* ---------- apa itu index: demo pencarian ---------- */
+  const ixT=$('ix-table');
+  if(ixT){
+    const rows=[[1,'A-2291',7],[2,'A-2292',19],[3,'A-2293',12],[4,'A-2294',31],[5,'A-2295',7],[6,'A-2296',44],[7,'A-2297',12],[8,'A-2298',7],[9,'A-2299',58],[10,'A-2300',19]];
+    const idx=rows.map(r=>[r[2],r[0]]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+    let mode='scan', timer=null;
+    const draw=(hitRows=new Set(),seen=new Set(),hitIdx=new Set())=>{
+      ixT.innerHTML='<tr><th>baris</th><th>code</th><th>customer_id</th></tr>'+rows.map(r=>{
+        const c=hitRows.has(r[0])?'ok':(seen.has(r[0])?'bad':'');
+        return '<tr><td class="'+c+'">#'+r[0]+'</td><td class="'+c+'">'+r[1]+'</td><td class="'+c+'">'+r[2]+'</td></tr>';}).join('');
+      $('ix-index').innerHTML='<tr><th>nilai</th><th>&rarr; baris</th></tr>'+idx.map((e,k)=>{
+        const c=hitIdx.has(k)?'ok':'';
+        return '<tr><td class="'+c+'">'+e[0]+'</td><td class="'+c+'">#'+e[1]+'</td></tr>';}).join('');
+    };
+    const setMode=v=>{mode=v;clearInterval(timer);draw();$('ix-cnt').textContent='0';$('ix-cnt-wrap').className='';
+      $('ix-idxcard').style.opacity=v==='index'?1:.35;
+      $('ix-note').innerHTML=v==='scan'
+        ?'Database tidak tahu di mana baris milik pelanggan 7, jadi semua baris dibaca.'
+        :'Nilai di index sudah urut, jadi database langsung menemukan tiga entri bernilai 7, lalu mengambil barisnya.';};
+    seg('data-ix',setMode);setMode('scan');
+    $('ix-run').onclick=()=>{
+      clearInterval(timer);
+      const seen=new Set(),hit=new Set();let k=0;
+      if(mode==='scan'){
+        timer=setInterval(()=>{
+          const r=rows[k];seen.add(r[0]);if(r[2]===7)hit.add(r[0]);
+          draw(hit,seen);$('ix-cnt').textContent=seen.size;k++;
+          if(k>=rows.length){clearInterval(timer);$('ix-cnt-wrap').className='warnv';
+            $('ix-note').innerHTML='<b>10 dari 10 baris dibaca</b> untuk menemukan 3. Dengan sejuta baris, sejuta dibaca.';}
+        },170);
+      }else{
+        const hi=new Set();idx.forEach((e,i)=>{if(e[0]===7){hi.add(i);hit.add(e[1]);}});
+        draw(new Set(),new Set(),hi);
+        setTimeout(()=>{draw(hit,new Set(),hi);$('ix-cnt').textContent=hit.size;$('ix-cnt-wrap').className='okv';
+          $('ix-note').innerHTML='<b>Hanya 3 baris disentuh</b>, persis yang dicari. Harganya: index makan ruang, dan setiap INSERT juga harus memperbarui index.';},450);
+      }
+    };
   }
 
   /* ---------- copy ---------- */
